@@ -67,5 +67,15 @@ public class SpecializationController {
 		return ResponseEntity.ok(specializations);
 	}
 
+	@GetMapping("/search-by-symptoms")
+	public ResponseEntity<List<String>> searchBySymptoms(@RequestParam("q") String symptoms) {
+		List<String> specializationNames = specializationService.searchBySymptoms(symptoms)
+				.stream()
+				.map(Specialization::getSpecializationName) // ✅ only names
+				.toList();
+		return ResponseEntity.ok(specializationNames);
+	}
+
+
 
 }

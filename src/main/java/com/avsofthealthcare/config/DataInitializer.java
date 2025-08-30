@@ -41,6 +41,7 @@ public class DataInitializer implements CommandLineRunner {
 			admin.setEmail("admin@example.com");
 			admin.setPhone("1234567890");
 			admin.setPassword(passwordEncoder.encode("admin123"));
+			admin.setConfirmPassword(passwordEncoder.encode("admin123"));
 
 			// Assign ADMIN role
 			Optional<Role> adminRole = roleRepository.findByName("ADMIN");

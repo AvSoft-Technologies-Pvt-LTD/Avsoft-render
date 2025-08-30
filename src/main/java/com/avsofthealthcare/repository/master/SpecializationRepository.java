@@ -11,6 +11,7 @@ public interface SpecializationRepository extends JpaRepository<Specialization, 
 
     Optional<Specialization> findByIdAndIsDeletedFalse(Integer id);
 	List<Specialization> findByPracticeTypeIdAndActiveTrueAndIsDeletedFalse(Integer practiceTypeId);
+	List<Specialization> findBySymptomsContainingIgnoreCaseAndIsDeletedFalse(String symptoms);
 }
 
 

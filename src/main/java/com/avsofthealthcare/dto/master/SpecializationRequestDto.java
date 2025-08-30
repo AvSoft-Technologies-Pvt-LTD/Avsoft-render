@@ -15,6 +15,8 @@ public class SpecializationRequestDto {
     @NotNull(message = "Practice Type ID is required")
     private Integer practiceTypeId;
 
+	private String symptoms;
+
     private Boolean active = true; // Optional, default to true if not provided
 
 
