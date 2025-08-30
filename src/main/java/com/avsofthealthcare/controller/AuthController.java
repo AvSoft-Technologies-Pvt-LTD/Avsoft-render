@@ -11,19 +11,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsCons
 public class AuthController {
 
-
+    @Autowired
     private UserService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
-        // UserService will authenticate and generate a JWT
-        return ResponseEntity.ok(userService.login(request.getIdentifier(), request.getPassword()));
-    }
-    @PreAuthorize("isAuthenticated()")
-    @GetMapping("/test")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request.getIdentifier(), request.getPassword());
         return ResponseEntity.ok(response);
