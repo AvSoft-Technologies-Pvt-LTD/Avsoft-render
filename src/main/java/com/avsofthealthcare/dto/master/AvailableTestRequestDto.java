@@ -5,9 +5,9 @@ import lombok.Data;
 
 @Data
 public class AvailableTestRequestDto {
-    @NotBlank
+    @NotBlank(message = "testName is required")
     private String testName;
-	@NotBlank
-	private String description;
+    @NotBlank(message = "description is required")
+    private String description;
     private Boolean active; // Optional in request, defaults to true
 }

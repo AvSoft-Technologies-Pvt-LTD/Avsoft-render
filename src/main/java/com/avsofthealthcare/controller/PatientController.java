@@ -5,6 +5,7 @@ import com.avsofthealthcare.dto.PatientResponseDto;
 import com.avsofthealthcare.service.PatientService;
 import com.avsofthealthcare.util.FileStorageService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -45,7 +46,7 @@ public class PatientController {
 
 
 	@PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> register(@ModelAttribute PatientRegisterRequest request) throws IOException {
+    public ResponseEntity<String> register(@Valid @ModelAttribute PatientRegisterRequest request) throws IOException {
         patientService.register(request, request.getPhoto());
         return ResponseEntity.ok("Patient registered successfully");
     }
@@ -69,7 +70,7 @@ public class PatientController {
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PatientResponseDto> update(
             @PathVariable Long id,
-            @ModelAttribute PatientRegisterRequest request
+            @Valid @ModelAttribute PatientRegisterRequest request
     ) throws IOException {
         return ResponseEntity.ok(patientService.update(id, request, request.getPhoto()));
     }

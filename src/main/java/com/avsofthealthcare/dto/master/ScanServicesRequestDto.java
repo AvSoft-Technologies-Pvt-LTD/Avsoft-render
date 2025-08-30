@@ -5,8 +5,9 @@ import lombok.Data;
 
 @Data
 public class ScanServicesRequestDto {
-    @NotBlank
+    @NotBlank(message ="scanName is required" )
     private String scanName;
+    @NotBlank(message ="description is required" )
     private String description;
     private Boolean active; // Optional in request, defaults to true
 }

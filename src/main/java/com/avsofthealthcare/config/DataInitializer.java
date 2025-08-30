@@ -21,36 +21,36 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
 
-	private final RoleRepository roleRepository;
-	private final UserRepository userRepository;
-	private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-	@Override
-	public void run(String... args) {
-		// Create roles if not exist
-		if (roleRepository.findByName("ADMIN").isEmpty()) {
-			roleRepository.save(new Role(null, "ADMIN", null, null, "SYSTEM", null));
-		}
-		if (roleRepository.findByName("USER").isEmpty()) {
-			roleRepository.save(new Role(null, "USER", null, null, "SYSTEM", null));
-		}
+    @Override
+    public void run(String... args) {
+        // Create roles if not exist
+        if (roleRepository.findByName("ADMIN").isEmpty()) {
+            roleRepository.save(new Role(null, "ADMIN", null, null, "SYSTEM", null));
+        }
+        if (roleRepository.findByName("USER").isEmpty()) {
+            roleRepository.save(new Role(null, "USER", null, null, "SYSTEM", null));
+        }
 
-		// Create initial admin user
-		if (userRepository.count() == 0) {
-			User admin = new User();
-			admin.setEmail("admin@example.com");
-			admin.setPhone("1234567890");
-			admin.setPassword(passwordEncoder.encode("admin123"));
-			admin.setConfirmPassword(passwordEncoder.encode("admin123"));
+        // Create initial admin user
+        if (userRepository.count() == 0) {
+            User admin = new User();
+            admin.setEmail("admin@example.com");
+            admin.setPhone("1234567890");
+            admin.setPassword(passwordEncoder.encode("Admin@1234"));
+            admin.setConfirmPassword(passwordEncoder.encode("Admin@1234"));
 
-			// Assign ADMIN role
-			Optional<Role> adminRole = roleRepository.findByName("ADMIN");
-			Set<Role> roles = new HashSet<>();
-			adminRole.ifPresent(roles::add);
-			admin.setRoles(roles);
+            // Assign ADMIN role
+            Optional<Role> adminRole = roleRepository.findByName("ADMIN");
+            Set<Role> roles = new HashSet<>();
+            adminRole.ifPresent(roles::add);
+            admin.setRoles(roles);
 
-			userRepository.save(admin);
-			System.out.println("Admin user created: admin@example.com / admin123");
-		}
-	}
+            userRepository.save(admin);
+            System.out.println("Admin user created: admin@example.com / Admin@1234");
+        }
+    }
 }

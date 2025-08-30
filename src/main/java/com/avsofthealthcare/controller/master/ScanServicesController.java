@@ -7,6 +7,7 @@ import com.avsofthealthcare.mapper.master.ScanServicesMapper;
 import com.avsofthealthcare.repository.master.ScanServicesRepository;
 import com.avsofthealthcare.service.master.ScanServicesService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,7 @@ public class ScanServicesController {
 
 
     @PostMapping
-    public ResponseEntity<ScanServicesResponseDto> createTest(@RequestBody ScanServicesRequestDto dto) {
+    public ResponseEntity<ScanServicesResponseDto> createTest(@Valid @RequestBody ScanServicesRequestDto dto) {
         ScanServices saved = scanServicesRepository.save(ScanServicesMapper.toEntity(dto));
         return ResponseEntity.ok(ScanServicesMapper.toDto(saved));
     }
@@ -50,7 +51,7 @@ public class ScanServicesController {
     @PutMapping("/{id}")
     public ResponseEntity<ScanServicesResponseDto> update(
             @PathVariable Integer id,
-            @RequestBody ScanServicesRequestDto dto) {
+            @Valid@RequestBody ScanServicesRequestDto dto) {
 
         ScanServices updated = scanServicesService.update(id, dto);
         return ResponseEntity.ok(ScanServicesMapper.toDto(updated));

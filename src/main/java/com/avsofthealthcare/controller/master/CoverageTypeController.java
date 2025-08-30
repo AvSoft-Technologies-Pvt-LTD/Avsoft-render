@@ -8,6 +8,7 @@ import com.avsofthealthcare.mapper.master.CoverageTypeMapper;
 import com.avsofthealthcare.repository.master.CoverageTypeRepository;
 import com.avsofthealthcare.service.master.CoverageTypeService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,7 @@ public class CoverageTypeController {
 
 
     @PostMapping
-    public ResponseEntity<CoverageTypeResponseDto> createTest(@RequestBody CoverageTypeRequestDto dto) {
+    public ResponseEntity<CoverageTypeResponseDto> createTest(@Valid @RequestBody CoverageTypeRequestDto dto) {
         CoverageType saved = coverageTypeRepository.save(CoverageTypeMapper.toEntity(dto));
         return ResponseEntity.ok(CoverageTypeMapper.toDto(saved));
     }
@@ -51,7 +52,7 @@ public class CoverageTypeController {
     @PutMapping("/{id}")
     public ResponseEntity<CoverageTypeResponseDto> update(
             @PathVariable Integer id,
-            @RequestBody CoverageTypeRequestDto dto) {
+            @Valid@RequestBody CoverageTypeRequestDto dto) {
 
         CoverageType updated = coverageTypeService.update(id, dto);
         return ResponseEntity.ok(CoverageTypeMapper.toDto(updated));

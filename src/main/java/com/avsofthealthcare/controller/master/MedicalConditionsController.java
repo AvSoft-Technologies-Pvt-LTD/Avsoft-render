@@ -8,6 +8,7 @@ import com.avsofthealthcare.mapper.master.MedicalConditionsMapper;
 import com.avsofthealthcare.repository.master.MedicalConditionsRepository;
 import com.avsofthealthcare.service.master.MedicalConditionsService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,7 @@ public class MedicalConditionsController {
 
 
     @PostMapping
-    public ResponseEntity<MedicalConditionsResponseDto> createTest(@RequestBody MedicalConditionsRequestDto dto) {
+    public ResponseEntity<MedicalConditionsResponseDto> createTest(@Valid @RequestBody MedicalConditionsRequestDto dto) {
         MedicalConditions saved = medicalConditionsRepository.save(MedicalConditionsMapper.toEntity(dto));
         return ResponseEntity.ok(MedicalConditionsMapper.toDto(saved));
     }
@@ -51,7 +52,7 @@ public class MedicalConditionsController {
     @PutMapping("/{id}")
     public ResponseEntity<MedicalConditionsResponseDto> update(
             @PathVariable Integer id,
-            @RequestBody MedicalConditionsRequestDto dto) {
+            @Valid@RequestBody MedicalConditionsRequestDto dto) {
 
         MedicalConditions updated = medicalConditionsService.update(id, dto);
         return ResponseEntity.ok(MedicalConditionsMapper.toDto(updated));

@@ -2,6 +2,7 @@ package com.avsofthealthcare.controller;
 
 import com.avsofthealthcare.dto.LabRegisterRequest;
 import com.avsofthealthcare.service.LabService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class LabController {
     private LabService labService;
 
     @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> register(@ModelAttribute LabRegisterRequest request) {
+    public ResponseEntity<String> register(@Valid @ModelAttribute LabRegisterRequest request) {
         try {
             labService.register(request);
         } catch (IOException e) {

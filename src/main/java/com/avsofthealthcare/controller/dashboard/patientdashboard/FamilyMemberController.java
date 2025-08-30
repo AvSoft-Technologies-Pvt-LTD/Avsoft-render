@@ -4,6 +4,7 @@ import com.avsofthealthcare.dto.dashboard.patientdashboard.FamilyMemberRequestDT
 import com.avsofthealthcare.dto.dashboard.patientdashboard.FamilyMemberResponseDTO;
 import com.avsofthealthcare.service.dashboard.patientdashboard.FamilyMemberService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class FamilyMemberController {
      * 🔹 Create a new family member
      */
     @PostMapping
-    public ResponseEntity<FamilyMemberResponseDTO> create(@RequestBody FamilyMemberRequestDTO requestDTO) {
+    public ResponseEntity<FamilyMemberResponseDTO> create(@Valid @RequestBody FamilyMemberRequestDTO requestDTO) {
         FamilyMemberResponseDTO created = familyMemberService.create(requestDTO);
         return ResponseEntity.ok(created);
     }
@@ -50,7 +51,7 @@ public class FamilyMemberController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<FamilyMemberResponseDTO> update(@PathVariable Long id,
-                                                          @RequestBody FamilyMemberRequestDTO requestDTO) {
+                                                          @Valid@RequestBody FamilyMemberRequestDTO requestDTO) {
         FamilyMemberResponseDTO updated = familyMemberService.update(id, requestDTO);
         return ResponseEntity.ok(updated);
     }

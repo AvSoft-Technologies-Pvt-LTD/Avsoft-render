@@ -11,7 +11,6 @@ public class SpecializationMapper {
         return Specialization.builder()
                 .specializationName(dto.getSpecializationName())
                 .description(dto.getDescription())
-		        .symptoms(dto.getSymptoms()) // ✅ Map symptoms
                 .active(dto.getActive() != null ? dto.getActive() : true)
                 .isDeleted(false)
                 .practiceType(practiceType)
@@ -23,7 +22,6 @@ public class SpecializationMapper {
         dto.setId(entity.getId());
         dto.setSpecializationName(entity.getSpecializationName());
         dto.setDescription(entity.getDescription());
-	    dto.setSymptoms(entity.getSymptoms()); // ✅ Map symptoms
         dto.setActive(entity.getActive());
 
         if (entity.getPracticeType() != null) {

@@ -5,8 +5,9 @@ import lombok.Data;
 
 @Data
 public class MedicalConditionsRequestDto {
-    @NotBlank
+    @NotBlank(message ="conditionName is required" )
     private String conditionName;
+    @NotBlank(message ="description is required" )
     private String description;
     private Boolean active; // Optional in request, defaults to true
 }

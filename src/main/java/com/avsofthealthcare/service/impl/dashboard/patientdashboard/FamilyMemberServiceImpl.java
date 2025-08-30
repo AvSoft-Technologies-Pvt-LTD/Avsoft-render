@@ -86,45 +86,36 @@ public class FamilyMemberServiceImpl implements FamilyMemberService {
     @Transactional
     @Override
     public FamilyMemberResponseDTO update(Long id, FamilyMemberRequestDTO dto) {
-	    // 1. Fetch existing FamilyMember
-	    FamilyMemberDetails member = memberRepo.findById(id)
-			    .orElseThrow(() -> new RuntimeException("FamilyMember not found"));
+        FamilyMemberDetails member = memberRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("FamilyMember not found"));
 
-	    // 2. Fetch Relation
-	    Relation relation = relationRepo.findById(dto.getRelationId().intValue())
-			    .orElseThrow(() -> new RuntimeException("Relation not found"));
+        Relation relation = relationRepo.findById(dto.getRelationId().intValue())
+                .orElseThrow(() -> new RuntimeException("Relation not found"));
 
-	    // 3. Update basic fields
-	    member.setPatientId(dto.getPatientId());
-	    member.setRelation(relation);
-	    member.setMemberName(dto.getMemberName());
-	    member.setPhoneNumber(dto.getPhoneNumber());
+        member.setPatientId(dto.getPatientId());
+        member.setRelation(relation);
+        member.setMemberName(dto.getMemberName());
+        member.setPhoneNumber(dto.getPhoneNumber());
 
-	    // 4. Clear old health conditions
-	    member.getHealthConditions().clear();
+        // Clear previous conditions
+        conditionRepo.deleteByFamilyMemberId(id);
 
-	    // 5. Add new health conditions
-	    dto.getHealthConditionIds().forEach(cid -> {
-		    HealthConditions hc = healthConditionRepo.findById(cid.intValue())
-				    .orElseThrow(() -> new RuntimeException("HealthCondition not found"));
+        List<FamilyMemberHealthCondition> updatedConditions = dto.getHealthConditionIds().stream()
+                .map(cid -> {
+                    HealthConditions hc = healthConditionRepo.findById(cid.intValue())
+                            .orElseThrow(() -> new RuntimeException("HealthCondition not found"));
+                    return FamilyMemberHealthCondition.builder()
+                            .familyMember(member)
+                            .healthCondition(hc)
+                            .build();
+                }).collect(Collectors.toList());
 
-		    FamilyMemberHealthCondition fmhc = FamilyMemberHealthCondition.builder()
-				    .familyMember(member)
-				    .healthCondition(hc)
-				    .build();
-
-		    member.getHealthConditions().add(fmhc);
-	    });
-
-	    // 6. Save updated member
-	    FamilyMemberDetails updated = memberRepo.save(member);
-
-	    // 7. Return DTO
-	    return FamilyMemberMapper.toDTO(updated);
+        member.setHealthConditions(updatedConditions);
+        FamilyMemberDetails updated = memberRepo.save(member);
+        return FamilyMemberMapper.toDTO(updated);
     }
 
-
-	/**
+    /**
      * Delete member and their conditions
      */
     @Transactional

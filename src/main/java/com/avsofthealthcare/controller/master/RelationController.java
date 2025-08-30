@@ -7,6 +7,7 @@ import com.avsofthealthcare.mapper.master.RelationMapper;
 import com.avsofthealthcare.repository.master.RelationRepository;
 import com.avsofthealthcare.service.master.RelationService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,7 @@ public class RelationController {
 
 
     @PostMapping
-    public ResponseEntity<RelationResponseDto> createTest(@RequestBody RelationRequestDto dto) {
+    public ResponseEntity<RelationResponseDto> createTest(@Valid @RequestBody RelationRequestDto dto) {
         Relation saved = relationRepository.save(RelationMapper.toEntity(dto));
         return ResponseEntity.ok(RelationMapper.toDto(saved));
     }
@@ -50,7 +51,7 @@ public class RelationController {
     @PutMapping("/{id}")
     public ResponseEntity<RelationResponseDto> update(
             @PathVariable Integer id,
-            @RequestBody RelationRequestDto dto) {
+            @Valid@RequestBody RelationRequestDto dto) {
 
         Relation updated = relationService.update(id, dto);
         return ResponseEntity.ok(RelationMapper.toDto(updated));

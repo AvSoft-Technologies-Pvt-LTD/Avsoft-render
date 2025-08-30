@@ -2,6 +2,7 @@ package com.avsofthealthcare.controller;
 
 import com.avsofthealthcare.dto.*;
 import com.avsofthealthcare.service.RoleService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,13 +19,13 @@ public class RoleController {
 
 	@PreAuthorize("hasAuthority('ADMIN')")
 	@PostMapping
-	public ResponseEntity<RoleResponseDto> createRole(@RequestBody RoleRequestDto roleRequestDto) {
+	public ResponseEntity<RoleResponseDto> createRole(@Valid @RequestBody RoleRequestDto roleRequestDto) {
 		return ResponseEntity.ok(roleService.createRole(roleRequestDto));
 	}
 
 	@PreAuthorize("hasAuthority('ADMIN')")
 	@PutMapping("/{id}")
-	public ResponseEntity<RoleResponseDto> updateRole(@PathVariable Long id,
+	public ResponseEntity<RoleResponseDto> updateRole(@Valid@PathVariable Long id,
 			@RequestBody RoleUpdateDto roleUpdateDto) {
 		return ResponseEntity.ok(roleService.updateRole(id, roleUpdateDto));
 	}

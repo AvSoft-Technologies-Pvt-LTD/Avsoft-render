@@ -2,6 +2,7 @@ package com.avsofthealthcare.controller;
 
 import com.avsofthealthcare.dto.HospitalRegisterRequest;
 import com.avsofthealthcare.service.HospitalService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class HospitalController {
     private HospitalService hospitalService;
 
     @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> register(@ModelAttribute HospitalRegisterRequest request) {
+    public ResponseEntity<String> register(@Valid @ModelAttribute HospitalRegisterRequest request) {
         try {
             hospitalService.register(request);
         } catch (IOException e) {

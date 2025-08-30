@@ -5,6 +5,7 @@ import com.avsofthealthcare.dto.DoctorResponseDto;
 import com.avsofthealthcare.service.DoctorService;
 import com.avsofthealthcare.util.FileStorageService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +42,7 @@ public class DoctorController {
 
 	// REGISTER
 	@PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<String> register(@ModelAttribute DoctorRegisterRequest request) throws IOException {
+	public ResponseEntity<String> register(@Valid @ModelAttribute DoctorRegisterRequest request) throws IOException {
 		doctorService.register(request, request.getPhoto());
 		return ResponseEntity.ok("Doctor registered successfully");
 	}
@@ -62,7 +63,7 @@ public class DoctorController {
 	@PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<DoctorResponseDto> update(
 			@PathVariable Long id,
-			@ModelAttribute DoctorRegisterRequest request
+			@Valid@ModelAttribute DoctorRegisterRequest request
 	) throws IOException {
 		return ResponseEntity.ok(doctorService.update(id, request, request.getPhoto()));
 	}

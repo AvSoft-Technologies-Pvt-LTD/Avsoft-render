@@ -7,6 +7,7 @@ import com.avsofthealthcare.mapper.master.SpecialServicesMapper;
 import com.avsofthealthcare.repository.master.SpecialServicesRepository;
 import com.avsofthealthcare.service.master.SpecialServicesService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,7 @@ public class SpecialServicesController {
 
 
     @PostMapping
-    public ResponseEntity<SpecialServicesResponseDto> createTest(@RequestBody SpecialServicesRequestDto dto) {
+    public ResponseEntity<SpecialServicesResponseDto> createTest(@Valid @RequestBody SpecialServicesRequestDto dto) {
         SpecialServices saved = specialServicesRepository.save(SpecialServicesMapper.toEntity(dto));
         return ResponseEntity.ok(SpecialServicesMapper.toDto(saved));
     }
@@ -50,7 +51,7 @@ public class SpecialServicesController {
     @PutMapping("/{id}")
     public ResponseEntity<SpecialServicesResponseDto> update(
             @PathVariable Integer id,
-            @RequestBody SpecialServicesRequestDto dto) {
+            @Valid@RequestBody SpecialServicesRequestDto dto) {
 
         SpecialServices updated = specialServicesService.update(id, dto);
         return ResponseEntity.ok(SpecialServicesMapper.toDto(updated));

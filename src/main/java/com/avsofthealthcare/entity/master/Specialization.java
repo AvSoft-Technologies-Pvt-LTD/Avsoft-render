@@ -26,11 +26,7 @@ public class Specialization {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-	@Column(name = "symptoms", columnDefinition = "TEXT")
-	private String symptoms;
-
-
-	@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "practice_type_id", nullable = false)
     private PracticeType practiceType;
 

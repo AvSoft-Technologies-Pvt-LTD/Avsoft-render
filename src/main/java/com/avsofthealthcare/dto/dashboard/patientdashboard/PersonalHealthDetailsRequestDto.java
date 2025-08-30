@@ -3,12 +3,13 @@ package com.avsofthealthcare.dto.dashboard.patientdashboard;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class PersonalHealthDetailsRequestDto {
 
-    @NotBlank
+    @NotBlank(message = "patientId is required")
     private String patientId;
 
 
@@ -16,6 +17,7 @@ public class PersonalHealthDetailsRequestDto {
 
     private Double weight;
 
+    @NotNull(message = "bloodGroupId is required")
     private Integer bloodGroupId; // ID of the selected BloodGroup
 
     private String surgeries;

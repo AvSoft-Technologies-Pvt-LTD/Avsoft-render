@@ -3,6 +3,7 @@ package com.avsofthealthcare.controller;
 import com.avsofthealthcare.dto.AuthResponse;
 import com.avsofthealthcare.dto.LoginRequest;
 import com.avsofthealthcare.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -17,7 +18,7 @@ public class AuthController {
     private UserService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request.getIdentifier(), request.getPassword());
         return ResponseEntity.ok(response);
     }
@@ -31,3 +32,8 @@ public class AuthController {
         return ResponseEntity.ok("No authentication found");
     }
 }
+
+//cpmments
+
+
+//asydgyuh

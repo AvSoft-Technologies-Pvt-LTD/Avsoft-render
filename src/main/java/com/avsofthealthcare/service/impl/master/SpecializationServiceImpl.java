@@ -97,12 +97,6 @@ public class SpecializationServiceImpl implements SpecializationService {
 				.map(SpecializationMapper::toDto)
 				.collect(Collectors.toList());
 	}
-
-	@Override
-	public List<Specialization> searchBySymptoms(String symptoms) {
-		return specializationRepository.findBySymptomsContainingIgnoreCaseAndIsDeletedFalse(symptoms);
-	}
-
 }
 
 

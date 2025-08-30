@@ -39,162 +39,188 @@ import java.util.regex.Pattern;
 @Service
 public class PatientServiceImpl implements PatientService {
 
-	@Autowired private UserRepository userRepository;
-	@Autowired private PatientDetailsRepository patientRepository;
-	@Autowired private FileStorageService fileStorageService;
-	@Autowired private UserMapper userMapper;
-	@Autowired private PatientMapper patientMapper;
-	@Autowired private UserValidationService userValidationService;
-	@Autowired private GenderRepository genderRepository;
+    @Autowired private UserRepository userRepository;
+    @Autowired private PatientDetailsRepository patientRepository;
+    @Autowired private FileStorageService fileStorageService;
+    @Autowired private UserMapper userMapper;
+    @Autowired private PatientMapper patientMapper;
+    @Autowired private UserValidationService userValidationService;
+
+    @Autowired private GenderRepository genderRepository;
 	@Autowired private RoleRepository roleRepository;
 	@Autowired private PasswordEncoder passwordEncoder;
 
-	@Value("${app.file.upload-dir}")
-	private String uploadDir;
+    @Value("${app.file.upload-dir}")
+    private String uploadDir;
 
-	private static final String PATIENT_ROLE = "PATIENT";
-
-
-	@Override
-	@Transactional
-	public String register(PatientRegisterRequest request, MultipartFile photo) {
-		try {
-			if (!request.getPassword().equals(request.getConfirmPassword())) {
-				throw new IllegalArgumentException("Passwords do not match");
-			}
-
-			userValidationService.validateUniqueEmailAndPhone(request.getEmail(), request.getPhone());
-			String encodedPassword = passwordEncoder.encode(request.getPassword());
-
-			Role patientRole = roleRepository.findByName(PATIENT_ROLE)
-					.orElseThrow(() -> new ResourceNotFoundException("Role 'PATIENT' not found"));
-
-			User user = User.builder()
-					.email(request.getEmail())
-					.phone(request.getPhone())
-					.password(encodedPassword)
-					.confirmPassword(encodedPassword) // ✅ Storing encoded confirmPassword
-					.roles(Set.of(patientRole))
-					.build();
-
-			User savedUser = userRepository.save(user);
-
-			String photoPath = handlePhotoUpload(photo, request.getFirstName(), savedUser.getId(), 1);
-
-			Gender gender = genderRepository.findById(request.getGenderId())
-					.orElseThrow(() -> new ResourceNotFoundException("Gender not found"));
-
-			PatientDetails patient = PatientMapper.toEntity(
-					request,
-					photoPath,
-					gender,
-					savedUser.getId(),
-					patientRole.getName()
-			);
-
-			patientRepository.save(patient);
-			return "Patient registered successfully";
-
-		} catch (Exception ex) {
-
-			throw new RuntimeException("Patient registration failed: " + ex.getMessage(), ex);
-		}
-	}
+    @Override
+    @Transactional
+    public String register(PatientRegisterRequest request, MultipartFile photo) throws IOException {
+        try {
 
 
-	@Override
-	@Transactional
-	public PatientResponseDto update(Long id, PatientRegisterRequest req, MultipartFile photo) {
-		PatientDetails patient = patientRepository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+            // Validate password match
+            if (!request.getPassword().equals(request.getConfirmPassword())) {
+                throw new IllegalArgumentException("Passwords do not match");
+            }
 
-		User user = userRepository.findById(patient.getUserId())
-				.orElseThrow(() -> new ResourceNotFoundException("User not found"));
+            // Validate email & phone uniqueness
+            userValidationService.validateUniqueEmailAndPhone(request.getEmail(), request.getPhone());
+	        // 🔐 Encode password
+	        String encodedPassword = passwordEncoder.encode(request.getPassword());
 
-		userValidationService.validateUniqueEmailAndPhoneForUpdate(
-				patient.getUserId(), req.getEmail(), req.getPhone()
-		);
+	        // 🔄 Get PATIENT Role dynamically from DB
+	        Role patientRole = roleRepository.findByName("PATIENT")
+			        .orElseThrow(() -> new ResourceNotFoundException("Role 'PATIENT' not found"));
 
-		user.setEmail(req.getEmail());
-		user.setPhone(req.getPhone());
+	        Set<Role> roles = new HashSet<>();
+	        roles.add(patientRole);
 
-		if (req.getPassword() != null && !req.getPassword().isEmpty()) {
-			if (!req.getPassword().equals(req.getConfirmPassword())) {
-				throw new IllegalArgumentException("Passwords do not match");
-			}
-			String encodedPassword = passwordEncoder.encode(req.getPassword());
-			user.setPassword(encodedPassword);
-			user.setConfirmPassword(encodedPassword); // ✅ Store encoded confirmPassword again
-		}
+            // Create and save User
+	        // 👤 Create User
+	        User user = User.builder()
+			        .email(request.getEmail())
+			        .phone(request.getPhone())
+			        .password(encodedPassword)
+			        .roles(roles)
+			        .build();
+
+	        User savedUser = userRepository.save(user);
+
+	        // Handle photo upload
+	        String photoPath = null;
+	        // Inside register method - before saving photo
+	        if (photo != null && !photo.isEmpty()) {
+		        Long newUserId = savedUser.getId(); // If needed, or after saving user
+		        String baseName = request.getFirstName().replaceAll("\\s+", "_") + "_" + newUserId + "_v1";
+		        String extension = FilenameUtils.getExtension(photo.getOriginalFilename());
+		        String fileName = baseName + "." + extension;
+		        photoPath = fileStorageService.uploadSingleFileWithName(photo, "patients/photos", fileName);
+	        }
+
+            // Get Gender entity
+            Gender gender = genderRepository.findById(request.getGenderId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Gender not found"));
+
+            // Map and save PatientDetails
+	        // 🏥 Create PatientDetails
+	        PatientDetails patient = PatientMapper.toEntity(
+			        request,
+			        photoPath,
+			        gender,
+			        savedUser.getId(),
+			        patientRole.getName()
+	        );
+	        patientRepository.save(patient);
 
 
-		userRepository.save(user);
+	        return "Patient registered successfully";
 
-		Gender gender = patient.getGender();
-		if (req.getGenderId() != null) {
-			gender = genderRepository.findById(req.getGenderId())
-					.orElseThrow(() -> new ResourceNotFoundException("Gender not found"));
-		}
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw new IOException("Patient registration failed: " + ex.getMessage(), ex);
+        }
+    }
 
-		String photoPath = patient.getPhoto();
-		if (photo != null && !photo.isEmpty()) {
-			int version = extractPhotoVersion(photoPath) + 1;
-			photoPath = handlePhotoUpload(photo, req.getFirstName(), patient.getUserId(), version);
-		}
 
-		PatientMapper.updateEntity(patient, req, photoPath, gender);
-		PatientDetails updatedPatient = patientRepository.save(patient);
-		return PatientMapper.toResponseDto(updatedPatient);
-	}
 
-	@Override
-	public PatientResponseDto getById(Long id) {
-		PatientDetails patient = patientRepository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("Patient not found with id: " + id));
-		return PatientMapper.toResponseDto(patient);
-	}
 
-	@Override
-	public List<PatientResponseDto> getAllActive() {
-		return patientRepository.findAllByIsDeletedFalse()
-				.stream()
-				.map(PatientMapper::toResponseDto)
-				.toList();
-	}
 
-	@Override
-	public void softDelete(Long id) {
-		PatientDetails existing = patientRepository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("Patient not found with id: " + id));
-		existing.setIsDeleted(true);
-		patientRepository.save(existing);
-	}
+    @Override
+    @Transactional
+    public PatientResponseDto update(Long id, PatientRegisterRequest req, MultipartFile photo) {
+        // Find existing patient
+        PatientDetails patient = patientRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
-	// 🔧 Utility Methods
+        // 🔄 Get associated User
+        User user = userRepository.findById(patient.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-	private String handlePhotoUpload(MultipartFile photo, String firstName, Long userId, int version) {
-		if (photo == null || photo.isEmpty()) return null;
+        // ✅ Validate email and phone uniqueness (excluding current user)
+        userValidationService.validateUniqueEmailAndPhoneForUpdate(
+		        patient.getUserId(),
+				req.getEmail(),
+                req.getPhone()
+        );
 
-		try {
-			String baseName = firstName.replaceAll("\\s+", "_") + "_" + userId + "_v" + version;
-			String extension = FilenameUtils.getExtension(photo.getOriginalFilename());
-			String fileName = baseName + "." + extension;
+        // ✅ Update User info
+        user.setEmail(req.getEmail());
+        user.setPhone(req.getPhone());
 
-			return fileStorageService.uploadSingleFileWithName(photo, "patients/photos", fileName);
-		} catch (IOException e) {
+        if (req.getPassword() != null && !req.getPassword().isEmpty()) {
+            if (!req.getPassword().equals(req.getConfirmPassword())) {
+                throw new IllegalArgumentException("Passwords do not match");
+            }
+        }
 
-			throw new RuntimeException("Photo upload failed", e);
-		}
-	}
+        userRepository.save(user);
 
-	private int extractPhotoVersion(String photoPath) {
-		if (photoPath == null || photoPath.isEmpty()) return 1;
-		String fileName = Paths.get(photoPath).getFileName().toString();
-		Pattern pattern = Pattern.compile("_v(\\d+)\\.");
-		Matcher matcher = pattern.matcher(fileName);
-		if (matcher.find()) {
-			return Integer.parseInt(matcher.group(1));
-		}
-		return 1;
-	}
+        // 🔄 Update gender if changed
+        Gender gender = patient.getGender();
+        if (req.getGenderId() != null) {
+            gender = genderRepository.findById(req.getGenderId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Gender not found"));
+        }
+
+	    // 🖼️ Handle photo update
+	    String photoPath = patient.getPhoto();
+	    if (photo != null && !photo.isEmpty()) {
+		    try {
+			    int version = 1;
+
+			    if (photoPath != null && !photoPath.isEmpty()) {
+				    String existingFileName = Paths.get(photoPath).getFileName().toString();
+				    // Example existingFileName: John_5_v2.jpg
+				    Pattern pattern = Pattern.compile("_v(\\d+)\\.");
+				    Matcher matcher = pattern.matcher(existingFileName);
+				    if (matcher.find()) {
+					    version = Integer.parseInt(matcher.group(1)) + 1;
+				    }
+			    }
+
+			    String baseName = req.getFirstName().replaceAll("\\s+", "_") + "_" + patient.getUserId() + "_v" + version;
+			    String extension = FilenameUtils.getExtension(photo.getOriginalFilename());
+			    String fileName = baseName + "." + extension;
+
+			    photoPath = fileStorageService.uploadSingleFileWithName(photo, "patients/photos", fileName);
+
+		    } catch (IOException e) {
+			    throw new RuntimeException("Photo upload failed", e);
+		    }
+	    }
+
+        // 🩺 Update patient details
+        PatientMapper.updateEntity(patient, req, photoPath, gender);
+
+        // 💾 Save patient and return
+        PatientDetails updatedPatient = patientRepository.save(patient);
+        return PatientMapper.toResponseDto(updatedPatient);
+    }
+
+
+
+
+    @Override
+    public PatientResponseDto getById(Long id) {
+        PatientDetails patient = patientRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found with id: " + id));
+        return PatientMapper.toResponseDto(patient);
+    }
+
+    @Override
+    public List<PatientResponseDto> getAllActive() {
+        List<PatientDetails> patients = patientRepository.findAllByIsDeletedFalse();
+        return patients.stream()
+                .map(PatientMapper::toResponseDto)
+                .toList();
+    }
+
+    @Override
+    public void softDelete(Long id) {
+        PatientDetails existing = patientRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found with id: " + id));
+        existing.setIsDeleted(true);
+        patientRepository.save(existing);
+    }
 }
