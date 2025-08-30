@@ -7,7 +7,6 @@ import com.avsofthealthcare.mapper.master.SpecializationMapper;
 import com.avsofthealthcare.repository.master.PracticeTypeRepository;
 import com.avsofthealthcare.service.master.SpecializationService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +26,7 @@ public class SpecializationController {
     private PracticeTypeRepository practiceTypeRepository;
 
     @PostMapping
-    public ResponseEntity<SpecializationResponseDto> create(@Valid @RequestBody SpecializationRequestDto dto) {
+    public ResponseEntity<SpecializationResponseDto> create(@RequestBody SpecializationRequestDto dto) {
         Specialization saved = specializationService.create(dto);
         return ResponseEntity.ok(SpecializationMapper.toDto(saved));
     }
@@ -48,7 +47,7 @@ public class SpecializationController {
     @PutMapping("/{id}")
     public ResponseEntity<SpecializationResponseDto> update(
             @PathVariable Integer id,
-            @Valid@RequestBody SpecializationRequestDto dto) {
+            @RequestBody SpecializationRequestDto dto) {
 
         Specialization updated = specializationService.update(id, dto);
         return ResponseEntity.ok(SpecializationMapper.toDto(updated));
@@ -67,6 +66,16 @@ public class SpecializationController {
 		List<SpecializationResponseDto> specializations = specializationService.getSpecializationsByPracticeTypeId(practiceTypeId);
 		return ResponseEntity.ok(specializations);
 	}
+
+	@GetMapping("/search-by-symptoms")
+	public ResponseEntity<List<String>> searchBySymptoms(@RequestParam("q") String symptoms) {
+		List<String> specializationNames = specializationService.searchBySymptoms(symptoms)
+				.stream()
+				.map(Specialization::getSpecializationName) // ✅ only names
+				.toList();
+		return ResponseEntity.ok(specializationNames);
+	}
+
 
 
 }

@@ -14,5 +14,7 @@ public interface SpecializationService {
     Specialization update(Integer id, SpecializationRequestDto dto);
     void delete(Integer id);
 	List<SpecializationResponseDto> getSpecializationsByPracticeTypeId(Integer practiceTypeId);
+	List<Specialization> searchBySymptoms(String symptoms);
+
 }
 
