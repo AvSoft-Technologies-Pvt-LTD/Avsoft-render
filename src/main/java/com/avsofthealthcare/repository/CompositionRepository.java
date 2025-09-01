@@ -10,8 +10,8 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface CompositionRepository extends JpaRepository<Composition, Integer> {
-    List<Composition> findByMedicineId(int medicineId);
-    Page<Composition> findByCompositionContainingIgnoreCase(String composition, Pageable pageable);
+	List<Composition> findByMedicineId(int medicineId);
+	Page<Composition> findByCompositionContainingIgnoreCase(String composition, Pageable pageable);
 
 
 }

@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface SubstituteRepository extends JpaRepository<Substitute, Integer> {
-    List<Substitute> findByMedicineId(int medicineId);
+	List<Substitute> findByMedicineId(int medicineId);
 }

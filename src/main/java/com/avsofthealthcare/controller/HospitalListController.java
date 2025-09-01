@@ -3,12 +3,13 @@ package com.avsofthealthcare.controller;
 import com.avsofthealthcare.dto.HospitalListDropdownDto;
 import com.avsofthealthcare.entity.HospitalList;
 import com.avsofthealthcare.service.HospitalListService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("api/hospitals")

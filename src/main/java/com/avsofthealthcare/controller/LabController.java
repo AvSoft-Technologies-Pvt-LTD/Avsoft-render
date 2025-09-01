@@ -2,13 +2,14 @@ package com.avsofthealthcare.controller;
 
 import com.avsofthealthcare.dto.LabRegisterRequest;
 import com.avsofthealthcare.service.LabService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.MediaType;
 
 import java.io.IOException;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth/lab")

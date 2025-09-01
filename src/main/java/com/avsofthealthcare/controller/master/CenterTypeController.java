@@ -7,7 +7,6 @@ import com.avsofthealthcare.mapper.master.CenterTypeMapper;
 import com.avsofthealthcare.repository.master.CenterTypeRepository;
 import com.avsofthealthcare.service.master.CenterTypeService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +27,7 @@ public class CenterTypeController {
 
 
     @PostMapping
-    public ResponseEntity<CenterTypeResponseDto> createTest(@Valid @RequestBody CenterTypeRequestDto dto) {
+    public ResponseEntity<CenterTypeResponseDto> createTest(@RequestBody CenterTypeRequestDto dto) {
         CenterType saved = centerTypeRepository.save(CenterTypeMapper.toEntity(dto));
         return ResponseEntity.ok(CenterTypeMapper.toDto(saved));
     }
@@ -51,7 +50,7 @@ public class CenterTypeController {
     @PutMapping("/{id}")
     public ResponseEntity<CenterTypeResponseDto> update(
             @PathVariable Integer id,
-            @Valid@RequestBody CenterTypeRequestDto dto) {
+            @RequestBody CenterTypeRequestDto dto) {
 
         CenterType updated = centerTypeService.update(id, dto);
         return ResponseEntity.ok(CenterTypeMapper.toDto(updated));

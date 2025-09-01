@@ -7,7 +7,6 @@ import com.avsofthealthcare.mapper.master.CertificateTypesMapper;
 import com.avsofthealthcare.repository.master.CertificateTypesRepository;
 import com.avsofthealthcare.service.master.CertificateTypesService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +27,7 @@ public class CertificateTypesController {
 
 
     @PostMapping
-    public ResponseEntity<CertificateTypesResponseDto> createTest(@Valid @RequestBody CertificateTypesRequestDto dto) {
+    public ResponseEntity<CertificateTypesResponseDto> createTest(@RequestBody CertificateTypesRequestDto dto) {
         CertificateTypes saved = certificateTypesRepository.save(CertificateTypesMapper.toEntity(dto));
         return ResponseEntity.ok(CertificateTypesMapper.toDto(saved));
     }
@@ -51,7 +50,7 @@ public class CertificateTypesController {
     @PutMapping("/{id}")
     public ResponseEntity<CertificateTypesResponseDto> update(
             @PathVariable Integer id,
-            @Valid@RequestBody CertificateTypesRequestDto dto) {
+            @RequestBody CertificateTypesRequestDto dto) {
 
         CertificateTypes updated = certificateTypesService.update(id, dto);
         return ResponseEntity.ok(CertificateTypesMapper.toDto(updated));

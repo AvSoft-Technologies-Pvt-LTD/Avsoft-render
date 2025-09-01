@@ -5,9 +5,8 @@ import lombok.Data;
 
 @Data
 public class PracticeTypeRequestDto {
-    @NotBlank(message ="practiceName is required" )
+    @NotBlank
     private String practiceName;
-    @NotBlank(message ="description is required" )
     private String description;
     private Boolean active; // Optional in request, defaults to true
 }

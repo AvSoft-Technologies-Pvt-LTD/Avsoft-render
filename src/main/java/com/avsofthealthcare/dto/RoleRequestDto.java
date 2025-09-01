@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class RoleRequestDto {
-    @NotBlank(message = "admin or user is required")
+	@NotBlank(message = "admin or user is required")
 	private String name;       // Role name: ADMIN, USER, etc.
 	private String createdBy;  // Who created the role
 }

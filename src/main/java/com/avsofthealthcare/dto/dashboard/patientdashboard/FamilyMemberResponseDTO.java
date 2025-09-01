@@ -3,7 +3,6 @@ package com.avsofthealthcare.dto.dashboard.patientdashboard;
 import com.avsofthealthcare.dto.master.HealthConditionDropdownDto;
 import com.avsofthealthcare.dto.master.HealthConditionsRequestDto;
 import com.avsofthealthcare.dto.master.HealthConditionsResponseDto;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.time.LocalDateTime;

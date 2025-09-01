@@ -7,7 +7,6 @@ import com.avsofthealthcare.mapper.master.BloodGroupMapper;
 import com.avsofthealthcare.repository.master.BloodGroupRepository;
 import com.avsofthealthcare.service.master.BloodGroupService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +27,7 @@ public class BloodGroupController {
 
 
     @PostMapping
-    public ResponseEntity<BloodGroupResponseDto> createTest(@Valid @RequestBody BloodGroupRequestDto dto) {
+    public ResponseEntity<BloodGroupResponseDto> createTest(@RequestBody BloodGroupRequestDto dto) {
         BloodGroup saved = bloodGroupRepository.save(BloodGroupMapper.toEntity(dto));
         return ResponseEntity.ok(BloodGroupMapper.toDto(saved));
     }
@@ -51,7 +50,7 @@ public class BloodGroupController {
     @PutMapping("/{id}")
     public ResponseEntity<BloodGroupResponseDto> update(
             @PathVariable Integer id,
-            @Valid@RequestBody BloodGroupRequestDto dto) {
+            @RequestBody BloodGroupRequestDto dto) {
 
         BloodGroup updated = bloodGroupService.update(id, dto);
         return ResponseEntity.ok(BloodGroupMapper.toDto(updated));

@@ -7,7 +7,6 @@ import com.avsofthealthcare.mapper.master.GenderMapper;
 import com.avsofthealthcare.repository.master.GenderRepository;
 import com.avsofthealthcare.service.master.GenderService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +27,7 @@ public class GenderController {
 
 
     @PostMapping
-    public ResponseEntity<GenderResponseDto> createTest(@Valid @RequestBody GenderRequestDto dto) {
+    public ResponseEntity<GenderResponseDto> createTest(@RequestBody GenderRequestDto dto) {
         Gender saved = genderRepository.save(GenderMapper.toEntity(dto));
         return ResponseEntity.ok(GenderMapper.toDto(saved));
     }
@@ -51,7 +50,7 @@ public class GenderController {
     @PutMapping("/{id}")
     public ResponseEntity<GenderResponseDto> update(
             @PathVariable Integer id,
-            @Valid@RequestBody GenderRequestDto dto) {
+            @RequestBody GenderRequestDto dto) {
 
         Gender updated = genderService.update(id, dto);
         return ResponseEntity.ok(GenderMapper.toDto(updated));

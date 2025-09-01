@@ -21,12 +21,12 @@ public class PersonalHealthDetailsController {
     private PersonalHealthDetailsService personalHealthDetailsService;
 
     @PostMapping
-    public ResponseEntity<PersonalHealthDetailsResponseDto> create(@Valid@RequestBody PersonalHealthDetailsRequestDto dto) {
+    public ResponseEntity<PersonalHealthDetailsResponseDto> create( @Valid @RequestBody PersonalHealthDetailsRequestDto dto) {
         return ResponseEntity.ok(personalHealthDetailsService.create(dto));
     }
 
     @GetMapping("/{patientId}")
-    public ResponseEntity<PersonalHealthDetailsResponseDto> getByPatientId(@PathVariable String patientId) {
+    public ResponseEntity<PersonalHealthDetailsResponseDto> getByPatientId( @PathVariable String patientId) {
         return ResponseEntity.ok(personalHealthDetailsService.findByPatientId(patientId));
     }
 
@@ -37,8 +37,9 @@ public class PersonalHealthDetailsController {
 
     @PutMapping("/{patientId}")
     public ResponseEntity<PersonalHealthDetailsResponseDto> update(
-            @PathVariable String patientId,
-            @Valid@RequestBody PersonalHealthDetailsRequestDto dto) {
+		    @Valid
+			@PathVariable String patientId,
+            @RequestBody PersonalHealthDetailsRequestDto dto) {
         return ResponseEntity.ok(personalHealthDetailsService.updateByPatientId(patientId, dto));
     }
 

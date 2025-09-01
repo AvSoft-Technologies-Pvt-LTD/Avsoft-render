@@ -14,6 +14,8 @@ public class SpecializationResponseDto {
     private Integer practiceTypeId;
     private String practiceTypeName;
 
+	private String symptoms;
+
     private Boolean active;
     private String createdBy;
     private String updatedBy;

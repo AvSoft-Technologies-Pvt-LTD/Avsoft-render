@@ -14,23 +14,23 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    @Autowired
-    private UserService authService;
+	@Autowired
+	private UserService authService;
 
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        AuthResponse response = authService.login(request.getIdentifier(), request.getPassword());
-        return ResponseEntity.ok(response);
-    }
+	@PostMapping("/login")
+	public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+		AuthResponse response = authService.login(request.getIdentifier(), request.getPassword());
+		return ResponseEntity.ok(response);
+	}
 
-    @GetMapping("/test")
-    public ResponseEntity<String> testAuth() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            return ResponseEntity.ok("Authentication successful! User: " + authentication.getName());
-        }
-        return ResponseEntity.ok("No authentication found");
-    }
+	@GetMapping("/test")
+	public ResponseEntity<String> testAuth() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication != null && authentication.isAuthenticated()) {
+			return ResponseEntity.ok("Authentication successful! User: " + authentication.getName());
+		}
+		return ResponseEntity.ok("No authentication found");
+	}
 }
 
 //cpmments

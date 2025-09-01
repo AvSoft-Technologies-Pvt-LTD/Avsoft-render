@@ -9,30 +9,30 @@ import lombok.Data;
 @Data
 public class PersonalHealthDetailsRequestDto {
 
-    @NotBlank(message = "patientId is required")
-    private String patientId;
+	@NotBlank(message = "patientId is required")
+	private String patientId;
 
 
-    private Double height;
+	private Double height;
 
-    private Double weight;
+	private Double weight;
 
-    @NotNull(message = "bloodGroupId is required")
-    private Integer bloodGroupId; // ID of the selected BloodGroup
+	@NotNull(message = "bloodGroupId is required")
+	private Integer bloodGroupId; // ID of the selected BloodGroup
 
-    private String surgeries;
+	private String surgeries;
 
-    private String allergies;
+	private String allergies;
 
-    private Boolean isSmoker;
+	private Boolean isSmoker;
 
-    private Integer yearsSmoking;
+	private Integer yearsSmoking;
 
-    private Boolean isAlcoholic;
+	private Boolean isAlcoholic;
 
-    private Integer yearsAlcoholic;
+	private Integer yearsAlcoholic;
 
-    private Boolean isTobacco;
+	private Boolean isTobacco;
 
-    private Integer yearsTobacco;
+	private Integer yearsTobacco;
 }

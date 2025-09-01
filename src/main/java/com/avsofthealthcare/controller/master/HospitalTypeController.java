@@ -6,7 +6,6 @@ import com.avsofthealthcare.mapper.master.HospitalTypeMapper;
 import com.avsofthealthcare.repository.master.HospitalTypeRepository;
 import com.avsofthealthcare.service.master.HospitalTypeService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +26,7 @@ public class HospitalTypeController {
 
 
     @PostMapping
-    public ResponseEntity<HospitalTypeResponseDto> createTest(@Valid @RequestBody HospitalTypeRequestDto dto) {
+    public ResponseEntity<HospitalTypeResponseDto> createTest(@RequestBody HospitalTypeRequestDto dto) {
         HospitalType saved = hospitalTypeRepository.save(HospitalTypeMapper.toEntity(dto));
         return ResponseEntity.ok(HospitalTypeMapper.toDto(saved));
     }
@@ -50,7 +49,7 @@ public class HospitalTypeController {
     @PutMapping("/{id}")
     public ResponseEntity<HospitalTypeResponseDto> update(
             @PathVariable Integer id,
-            @Valid@RequestBody HospitalTypeRequestDto dto) {
+            @RequestBody HospitalTypeRequestDto dto) {
 
         HospitalType updated = hospitalTypeService.update(id, dto);
         return ResponseEntity.ok(HospitalTypeMapper.toDto(updated));

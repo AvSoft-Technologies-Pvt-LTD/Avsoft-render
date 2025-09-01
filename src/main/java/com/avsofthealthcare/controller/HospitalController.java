@@ -2,7 +2,6 @@ package com.avsofthealthcare.controller;
 
 import com.avsofthealthcare.dto.HospitalRegisterRequest;
 import com.avsofthealthcare.service.HospitalService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth/hospital")

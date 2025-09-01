@@ -69,8 +69,9 @@ public class PatientController {
     @PreAuthorize("hasRole('PATIENT') or hasRole('ADMIN')")
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PatientResponseDto> update(
-            @PathVariable Long id,
-            @Valid @ModelAttribute PatientRegisterRequest request
+		    @Valid
+			@PathVariable Long id,
+            @ModelAttribute PatientRegisterRequest request
     ) throws IOException {
         return ResponseEntity.ok(patientService.update(id, request, request.getPhoto()));
     }

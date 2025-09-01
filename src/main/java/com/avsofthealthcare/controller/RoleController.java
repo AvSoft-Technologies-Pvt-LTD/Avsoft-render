@@ -2,6 +2,7 @@ package com.avsofthealthcare.controller;
 
 import com.avsofthealthcare.dto.*;
 import com.avsofthealthcare.service.RoleService;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class RoleController {
 
 	@PreAuthorize("hasAuthority('ADMIN')")
 	@PutMapping("/{id}")
-	public ResponseEntity<RoleResponseDto> updateRole(@Valid@PathVariable Long id,
+	public ResponseEntity<RoleResponseDto> updateRole(@Valid @PathVariable Long id,
 			@RequestBody RoleUpdateDto roleUpdateDto) {
 		return ResponseEntity.ok(roleService.updateRole(id, roleUpdateDto));
 	}

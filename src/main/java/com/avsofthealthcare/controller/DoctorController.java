@@ -62,8 +62,9 @@ public class DoctorController {
 	// UPDATE
 	@PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<DoctorResponseDto> update(
+			@Valid
 			@PathVariable Long id,
-			@Valid@ModelAttribute DoctorRegisterRequest request
+			@ModelAttribute DoctorRegisterRequest request
 	) throws IOException {
 		return ResponseEntity.ok(doctorService.update(id, request, request.getPhoto()));
 	}
