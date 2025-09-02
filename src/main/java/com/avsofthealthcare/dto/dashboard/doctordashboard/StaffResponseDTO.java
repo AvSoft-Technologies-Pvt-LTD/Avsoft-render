@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 public class StaffResponseDTO {
 	private Long id;
 	private String fullName;
-	private String designationName;
+	private String roleName;
 	private String emailId;
 	private String specializationName;
 	private String phoneNumber;

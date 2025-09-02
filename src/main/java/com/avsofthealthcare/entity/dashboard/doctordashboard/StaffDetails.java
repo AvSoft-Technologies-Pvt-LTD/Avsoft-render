@@ -10,7 +10,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
-import com.avsofthealthcare.entity.master.Designation;
+import com.avsofthealthcare.entity.Role;
 import com.avsofthealthcare.entity.master.Gender;
 import com.avsofthealthcare.entity.master.Specialization;
 
@@ -27,11 +27,14 @@ public class StaffDetails {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	@Column(name = "user_id")
+	private Long userId;
+
 	private String fullName;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "designation_id")
-	private Designation designation;
+	@JoinColumn(name = "role_id")
+	private Role role;
 
 	private String emailId;
 

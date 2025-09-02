@@ -6,7 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Data
 public class StaffRequestDTO {
 	private String fullName;
-	private Long designationId;
+	private Long roleId;
 	private String emailId;
 	private Integer specializationId;
 	private String phoneNumber;

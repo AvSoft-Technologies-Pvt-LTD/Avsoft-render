@@ -74,7 +74,7 @@ public class DoctorServiceImpl implements DoctorService {
 					.phone(request.getPhone())
 					.password(encodedPassword)
 					.confirmPassword(encodedPassword)
-					.roles(Set.of(doctorRole))
+					.role(doctorRole)
 					.build();
 
 			User savedUser = userRepository.save(user);

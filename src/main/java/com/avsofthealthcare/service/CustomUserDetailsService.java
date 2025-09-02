@@ -2,7 +2,6 @@ package com.avsofthealthcare.service;
 
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -31,10 +30,8 @@ public class CustomUserDetailsService implements UserDetailsService {
 				.or(() -> userRepository.findByPhone(identifier))
 				.orElseThrow(() -> new UsernameNotFoundException("User not found with email or phone: " + identifier));
 
-		// Convert user roles into Spring Security authorities
-		Set<GrantedAuthority> authorities = user.getRoles().stream()
-				.map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
-				.collect(Collectors.toSet());
+		// Convert single user role into Spring Security authority
+		Set<GrantedAuthority> authorities = Set.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().getName()));
 
 		// Return Spring Security UserDetails
 		return new org.springframework.security.core.userdetails.User(

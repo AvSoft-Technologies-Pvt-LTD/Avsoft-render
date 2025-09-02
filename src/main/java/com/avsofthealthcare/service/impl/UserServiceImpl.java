@@ -40,9 +40,7 @@ public class UserServiceImpl implements UserService {
                     .userId(user.getId())
                     .email(user.getEmail())
                     .phone(user.getPhone())
-                    .roles(user.getRoles().stream()
-                            .map(role -> role.getName())
-                            .toList())
+                    .role(user.getRole().getName())
                     .message("Login successful")
                     .build();
         }

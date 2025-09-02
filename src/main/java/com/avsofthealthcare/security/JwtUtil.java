@@ -1,6 +1,5 @@
 package com.avsofthealthcare.security;
 
-import com.avsofthealthcare.entity.Role;
 import com.avsofthealthcare.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -59,9 +58,7 @@ public class JwtUtil {
 	public String generateToken(User user, String loginIdentifier) {
 		Map<String, Object> claims = new HashMap<>();
 		claims.put("user_id", user.getId());
-		claims.put("roles", user.getRoles().stream()
-				.map(Role::getName)
-				.toList());
+		claims.put("role", user.getRole().getName());
 		claims.put("email", user.getEmail());
 		claims.put("phone", user.getPhone());
 
@@ -91,7 +88,7 @@ public class JwtUtil {
 		return extractClaim(token, claims -> claims.get("user_id", Long.class));
 	}
 
-	public List<String> extractRoles(String token) {
-		return extractClaim(token, claims -> claims.get("roles", List.class));
+	public String extractRole(String token) {
+		return extractClaim(token, claims -> claims.get("role", String.class));
 	}
 }

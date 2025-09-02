@@ -5,15 +5,10 @@ import com.avsofthealthcare.entity.Role;
 import com.avsofthealthcare.repository.UserRepository;
 import com.avsofthealthcare.repository.RoleRepository;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import lombok.RequiredArgsConstructor;
 
@@ -34,6 +29,15 @@ public class DataInitializer implements CommandLineRunner {
 		if (roleRepository.findByName("USER").isEmpty()) {
 			roleRepository.save(new Role(null, "USER", null, null, "SYSTEM", null));
 		}
+		if (roleRepository.findByName("STAFF").isEmpty()) {
+			roleRepository.save(new Role(null, "STAFF", null, null, "SYSTEM", null));
+		}
+		if (roleRepository.findByName("DOCTOR").isEmpty()) {
+			roleRepository.save(new Role(null, "DOCTOR", null, null, "SYSTEM", null));
+		}
+		if (roleRepository.findByName("PATIENT").isEmpty()) {
+			roleRepository.save(new Role(null, "PATIENT", null, null, "SYSTEM", null));
+		}
 
 		// Create initial admin user
 		if (userRepository.count() == 0) {
@@ -45,9 +49,7 @@ public class DataInitializer implements CommandLineRunner {
 
 			// Assign ADMIN role
 			Optional<Role> adminRole = roleRepository.findByName("ADMIN");
-			Set<Role> roles = new HashSet<>();
-			adminRole.ifPresent(roles::add);
-			admin.setRoles(roles);
+			adminRole.ifPresent(admin::setRole);
 
 			userRepository.save(admin);
 			System.out.println("Admin user created: admin@example.com / admin123");

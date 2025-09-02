@@ -74,7 +74,7 @@ public class PatientServiceImpl implements PatientService {
 					.phone(request.getPhone())
 					.password(encodedPassword)
 					.confirmPassword(encodedPassword) // ✅ Storing encoded confirmPassword
-					.roles(Set.of(patientRole))
+					.role(patientRole)
 					.build();
 
 			User savedUser = userRepository.save(user);

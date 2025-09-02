@@ -9,7 +9,7 @@ public class StaffMapper {
 		return StaffResponseDTO.builder()
 				.id(staff.getId())
 				.fullName(staff.getFullName())
-				.designationName(staff.getDesignation() != null ? staff.getDesignation().getName() : null)
+				.roleName(staff.getRole() != null ? staff.getRole().getName() : null)
 				.emailId(staff.getEmailId())
 				.specializationName(staff.getSpecialization() != null ? staff.getSpecialization().getSpecializationName() : null)
 				.phoneNumber(staff.getPhoneNumber())
