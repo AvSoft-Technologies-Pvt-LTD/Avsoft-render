@@ -1,7 +1,11 @@
 package com.avsofthealthcare.service.impl;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.avsofthealthcare.dto.AuthRequest;
 import com.avsofthealthcare.dto.AuthResponse;
+import com.avsofthealthcare.entity.Permission;
 import com.avsofthealthcare.entity.User;
 import com.avsofthealthcare.entity.Role;
 import com.avsofthealthcare.entity.dashboard.doctordashboard.StaffDetails;
@@ -11,6 +15,8 @@ import com.avsofthealthcare.repository.RoleRepository;
 import com.avsofthealthcare.repository.dashboard.doctordashboard.StaffRepository;
 import com.avsofthealthcare.security.JwtUtil;
 import com.avsofthealthcare.service.AuthService;
+import com.avsofthealthcare.service.PermissionService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,10 +35,11 @@ public class AuthServiceImpl implements AuthService {
 	private final RoleRepository roleRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtUtil jwtUtil;
+	private final PermissionService permissionService;
 
 	@Override
 	public AuthResponse login(AuthRequest request) {
-		// ✅ Step 1: Authenticate using Spring Security
+		// Step 1: Authenticate using Spring Security
 		authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(
 						request.getIdentifier(),
@@ -40,12 +47,12 @@ public class AuthServiceImpl implements AuthService {
 				)
 		);
 
-		// ✅ Step 2: Fetch actual User entity from DB (by email or phone)
+		// Step 2: Fetch actual User entity from DB (by email or phone)
 		User user = request.getIdentifier().contains("@")
 				? userRepository.findByEmail(request.getIdentifier()).orElse(null)
 				: userRepository.findByPhone(request.getIdentifier()).orElse(null);
 
-		// ✅ Step 2b: Fallback to staff_details and upsert a User if needed
+		// Step 2b: Fallback to staff_details and upsert a User if needed
 		if (user == null) {
 			StaffDetails staff = request.getIdentifier().contains("@")
 					? staffRepository.findByEmailId(request.getIdentifier()).orElse(null)
@@ -86,10 +93,13 @@ public class AuthServiceImpl implements AuthService {
 			}
 		}
 
-		// ✅ Step 3: Generate JWT → pass the whole User entity
-		String token = jwtUtil.generateToken(user, request.getIdentifier());
+		// Step 3: Fetch permissions for the user's role
+		List<Permission> permissions = permissionService.getPermissionsByRoleId(user.getId());
 
-		// ✅ Step 4: Return token + role
+		// Step 4: Generate JWT token including permissions
+		String token = jwtUtil.generateToken(user, request.getIdentifier(), permissions);
+
+		// Step 5: Return response
 		return AuthResponse.builder()
 				.token(token)
 				.userId(user.getId())
@@ -97,6 +107,8 @@ public class AuthServiceImpl implements AuthService {
 				.phone(user.getPhone())
 				.role(user.getRole().getName())
 				.message("Login successful")
+				// set permissions
+				.permissions(permissions.stream().map(Permission::getFormName).collect(Collectors.toList()))
 				.build();
 	}
 }

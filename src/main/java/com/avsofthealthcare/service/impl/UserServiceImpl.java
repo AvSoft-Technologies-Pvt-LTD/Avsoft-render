@@ -1,7 +1,12 @@
 package com.avsofthealthcare.service.impl;
 
+
+
+import java.util.List;
+
 import com.avsofthealthcare.dto.AuthResponse;
 import com.avsofthealthcare.dto.UserUpdateRequest;
+import com.avsofthealthcare.entity.Permission;
 import com.avsofthealthcare.entity.User;
 import com.avsofthealthcare.exception.ResourceNotFoundException;
 import com.avsofthealthcare.repository.UserRepository;
@@ -33,7 +38,10 @@ public class UserServiceImpl implements UserService {
 
         if (user != null && passwordEncoder.matches(password, user.getPassword())) {
             // Generate JWT token
-            String token = jwtUtil.generateToken(user, identifier);
+	        List<Permission> permissions = user.getRole().getPermissions();
+
+	        // Generate JWT token with permissions
+	        String token = jwtUtil.generateToken(user, identifier, permissions);
             
             return AuthResponse.builder()
                     .token(token)

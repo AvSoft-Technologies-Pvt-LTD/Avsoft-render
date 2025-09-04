@@ -1,5 +1,6 @@
 package com.avsofthealthcare.security;
 
+import com.avsofthealthcare.entity.Permission;
 import com.avsofthealthcare.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -55,14 +56,21 @@ public class JwtUtil {
 	}
 
 	// 🔹 Generate token for your custom User entity
-	public String generateToken(User user, String loginIdentifier) {
+	public String generateToken(User user, String loginIdentifier, List<Permission> permissions) {
 		Map<String, Object> claims = new HashMap<>();
 		claims.put("user_id", user.getId());
 		claims.put("role", user.getRole().getName());
 		claims.put("email", user.getEmail());
 		claims.put("phone", user.getPhone());
 
-		// Subject = login identifier (phone or email based on login)
+		// Convert permissions to a list of strings (or any suitable structure)
+		List<String> permissionStrings = permissions.stream()
+				.map(p -> p.getFormName() + ":" + p.getCanAdd() + "," + p.getCanEdit() + "," + p.getCanView())
+				.collect(Collectors.toList());
+
+		// Add permissions list to claims
+		claims.put("permissions", permissionStrings);
+
 		return createToken(claims, loginIdentifier);
 	}
 

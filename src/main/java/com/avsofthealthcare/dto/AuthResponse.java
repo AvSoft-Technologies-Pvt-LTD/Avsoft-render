@@ -1,5 +1,7 @@
 package com.avsofthealthcare.dto;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,4 +18,6 @@ public class AuthResponse {
 	private String phone;
 	private String role;
 	private String message;
+
+	private List<String> permissions;
 }
