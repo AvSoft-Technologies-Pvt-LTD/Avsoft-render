@@ -1,7 +1,9 @@
 package com.avsofthealthcare.entity;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -20,27 +22,39 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import jakarta.persistence.*;
+import lombok.*;
+
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+
+import com.avsofthealthcare.entity.master.Permission;
+import com.avsofthealthcare.entity.master.RolePermission;
+
+// Role.java
 @Entity
 @Table(name = "roles")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @EntityListeners(AuditingEntityListener.class)
 public class Role {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@EqualsAndHashCode.Include
 	private Long id;
 
-	@Column(unique = true, nullable = false)
-	private String name; // e.g., "ADMIN", "USER"
+	private String name; // e.g. ADMIN, USER, DOCTOR
 
-	@OneToMany(fetch = FetchType.EAGER, mappedBy = "role")
-	private List<Permission> permissions;
+	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<RolePermission> rolePermissions = new HashSet<>();
 
 	@CreatedDate
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private LocalDateTime createdAt;
+
 
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
@@ -48,6 +62,7 @@ public class Role {
 	@CreatedBy
 	@Column(name = "created_by", updatable = false)
 	private String createdBy;
+
 
 	@Column(name = "updated_by")
 	private String updatedBy;

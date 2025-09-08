@@ -4,9 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @EnableJpaAuditing(auditorAwareRef = "auditorAware")
+@EnableJpaRepositories(basePackages = "com.avsofthealthcare.repository")
 @SpringBootApplication
 @ComponentScan(basePackages = {
     "com.avsofthealthcare",
@@ -19,5 +20,4 @@ public class AvsofthealthcareApplication {
         SpringApplication.run(AvsofthealthcareApplication.class, args);
     }
 }
-//I am writing here a code for doing a test to push it.
-//anothere test
+

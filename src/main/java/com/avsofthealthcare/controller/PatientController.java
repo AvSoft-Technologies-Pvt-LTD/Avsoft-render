@@ -46,28 +46,30 @@ public class PatientController {
 
 
 	@PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@PreAuthorize("@permissionChecker.hasPermission('patients','view')")
     public ResponseEntity<String> register(@Valid @ModelAttribute PatientRegisterRequest request) throws IOException {
         patientService.register(request, request.getPhoto());
         return ResponseEntity.ok("Patient registered successfully");
     }
 
     // READ (Get patient by ID)
-    @PreAuthorize("hasRole('PATIENT') or hasRole('ADMIN')")
 	@GetMapping("/{id}")
+	@PreAuthorize("@permissionChecker.hasPermission('patients','view')")
     public ResponseEntity<PatientResponseDto> getById(@PathVariable Long id) {
         return ResponseEntity.ok(patientService.getById(id));
     }
 
     // READ (Get all active patients)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@permissionChecker.hasPermission('patients','view')")
 	@GetMapping("/all")
     public ResponseEntity<List<PatientResponseDto>> getAll() {
         return ResponseEntity.ok(patientService.getAllActive());
     }
 
     //update
-    @PreAuthorize("hasRole('PATIENT') or hasRole('ADMIN')")
+
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("@permissionChecker.hasPermission('patients','edit')")
     public ResponseEntity<PatientResponseDto> update(
 		    @Valid
 			@PathVariable Long id,

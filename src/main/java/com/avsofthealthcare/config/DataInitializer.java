@@ -4,13 +4,10 @@ import com.avsofthealthcare.entity.User;
 import com.avsofthealthcare.entity.Role;
 import com.avsofthealthcare.repository.UserRepository;
 import com.avsofthealthcare.repository.RoleRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
-
-import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
@@ -22,37 +19,38 @@ public class DataInitializer implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) {
-		// Create roles if not exist
-//		if (roleRepository.findByName("ADMIN").isEmpty()) {
-//			roleRepository.save(new Role(null, "ADMIN", null, null, "SYSTEM", null));
-//		}
-//		if (roleRepository.findByName("USER").isEmpty()) {
-//			roleRepository.save(new Role(null, "USER", null, null, "SYSTEM", null));
-//		}
-//		if (roleRepository.findByName("STAFF").isEmpty()) {
-//			roleRepository.save(new Role(null, "STAFF", null, null, "SYSTEM", null));
-//		}
-//		if (roleRepository.findByName("DOCTOR").isEmpty()) {
-//			roleRepository.save(new Role(null, "DOCTOR", null, null, "SYSTEM", null));
-//		}
-//		if (roleRepository.findByName("PATIENT").isEmpty()) {
-//			roleRepository.save(new Role(null, "PATIENT", null, null, "SYSTEM", null));
-//		}
-//
-//		// Create initial admin user
-//		if (userRepository.count() == 0) {
-//			User admin = new User();
-//			admin.setEmail("admin@example.com");
-//			admin.setPhone("1234567890");
-//			admin.setPassword(passwordEncoder.encode("admin123"));
-//			admin.setConfirmPassword(passwordEncoder.encode("admin123"));
-//
-//			// Assign ADMIN role
-//			Optional<Role> adminRole = roleRepository.findByName("ADMIN");
-//			adminRole.ifPresent(admin::setRole);
-//
-//			userRepository.save(admin);
-//			System.out.println("Admin user created: admin@example.com / admin123");
-//		}
+		// ✅ Create roles if not exist
+		createRoleIfNotExists("ADMIN");
+		createRoleIfNotExists("USER");
+		createRoleIfNotExists("STAFF");
+		createRoleIfNotExists("DOCTOR");
+		createRoleIfNotExists("PATIENT");
+
+		// ✅ Create initial admin user if no users exist
+		if (userRepository.count() == 0) {
+			User admin = User.builder()
+					.email("admin@example.com")
+					.phone("1234567890")
+					.password(passwordEncoder.encode("Admin@123"))
+					.confirmPassword(passwordEncoder.encode("Admin@123"))
+					.enabled(true)
+					.build();
+
+			roleRepository.findByName("ADMIN").ifPresent(admin::setRole);
+
+			userRepository.save(admin);
+			System.out.println("✅ Admin user created: admin@example.com / Admin@123");
+		}
+	}
+
+	private void createRoleIfNotExists(String roleName) {
+		roleRepository.findByName(roleName).orElseGet(() ->
+				roleRepository.save(
+						Role.builder()
+								.name(roleName)
+								.createdBy("SYSTEM")
+								.build()
+				)
+		);
 	}
 }

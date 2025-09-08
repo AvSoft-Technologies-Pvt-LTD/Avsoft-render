@@ -16,7 +16,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class AvailableTests {
-    @Id
+
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
@@ -42,13 +43,10 @@ public class AvailableTests {
     @Column(name = "updated_by")
     private String updatedBy;
 
-
-
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    // @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 

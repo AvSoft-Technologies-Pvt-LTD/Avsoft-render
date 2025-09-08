@@ -1,29 +1,30 @@
 package com.avsofthealthcare.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
+
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import com.avsofthealthcare.dto.AuthRequest;
 import com.avsofthealthcare.dto.AuthResponse;
-import com.avsofthealthcare.entity.Permission;
 import com.avsofthealthcare.entity.User;
-import com.avsofthealthcare.entity.Role;
 import com.avsofthealthcare.entity.dashboard.doctordashboard.StaffDetails;
+import com.avsofthealthcare.entity.dashboard.doctordashboard.StaffPermission;
+import com.avsofthealthcare.entity.master.Permission;
 import com.avsofthealthcare.exception.ResourceNotFoundException;
-import com.avsofthealthcare.repository.UserRepository;
 import com.avsofthealthcare.repository.RoleRepository;
-import com.avsofthealthcare.repository.dashboard.doctordashboard.StaffRepository;
+import com.avsofthealthcare.repository.UserRepository;
+import com.avsofthealthcare.repository.dashboard.doctordashboard.StaffDetailsRepository;
+import com.avsofthealthcare.repository.dashboard.doctordashboard.StaffPermissionRepository;
+import com.avsofthealthcare.repository.master.PermissionRepository;
 import com.avsofthealthcare.security.JwtUtil;
 import com.avsofthealthcare.service.AuthService;
-import com.avsofthealthcare.service.PermissionService;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -31,15 +32,15 @@ public class AuthServiceImpl implements AuthService {
 
 	private final AuthenticationManager authenticationManager;
 	private final UserRepository userRepository;
-	private final StaffRepository staffRepository;
+	private final StaffDetailsRepository staffDetailsRepository;
 	private final RoleRepository roleRepository;
+	private final PermissionRepository permissionRepository;
+	private final StaffPermissionRepository staffPermissionRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtUtil jwtUtil;
-	private final PermissionService permissionService;
 
 	@Override
 	public AuthResponse login(AuthRequest request) {
-		// Step 1: Authenticate using Spring Security
 		authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(
 						request.getIdentifier(),
@@ -47,69 +48,52 @@ public class AuthServiceImpl implements AuthService {
 				)
 		);
 
-		// Step 2: Fetch actual User entity from DB (by email or phone)
 		User user = request.getIdentifier().contains("@")
 				? userRepository.findByEmail(request.getIdentifier()).orElse(null)
 				: userRepository.findByPhone(request.getIdentifier()).orElse(null);
 
-		// Step 2b: Fallback to staff_details and upsert a User if needed
 		if (user == null) {
 			StaffDetails staff = request.getIdentifier().contains("@")
-					? staffRepository.findByEmailId(request.getIdentifier()).orElse(null)
-					: staffRepository.findByPhoneNumber(request.getIdentifier()).orElse(null);
+					? staffDetailsRepository.findByEmailId(request.getIdentifier()).orElse(null)
+					: staffDetailsRepository.findByPhoneNumber(request.getIdentifier()).orElse(null);
 
-			if (staff == null) {
-				throw new ResourceNotFoundException("User not found");
-			}
+			if (staff == null) throw new ResourceNotFoundException("User not found");
 
-			Role staffRole = roleRepository.findByName("STAFF")
-					.orElseThrow(() -> new ResourceNotFoundException("Role 'STAFF' not found"));
-
-			String encoded = passwordEncoder.encode(request.getPassword());
-
-			if (staff.getUserId() != null) {
-				user = userRepository.findById(staff.getUserId()).orElse(null);
-			}
+			user = staff.getUser();
 			if (user == null) {
-				user = User.builder()
-						.email(staff.getEmailId())
-						.phone(staff.getPhoneNumber())
-						.password(encoded)
-						.confirmPassword(encoded)
-						.role(staffRole)
-						.enabled(true)
-						.build();
-			} else {
-				user.setEmail(staff.getEmailId());
-				user.setPhone(staff.getPhoneNumber());
-				user.setPassword(encoded);
-				user.setConfirmPassword(encoded);
-				user.setRole(staffRole);
-			}
-			user = userRepository.save(user);
-			if (staff.getUserId() == null || !staff.getUserId().equals(user.getId())) {
-				staff.setUserId(user.getId());
-				staffRepository.save(staff);
+				throw new ResourceNotFoundException("Staff has no linked user account");
 			}
 		}
 
-		// Step 3: Fetch permissions for the user's role
-		List<Permission> permissions = permissionService.getPermissionsByRoleId(user.getId());
+		List<Permission> staffPermissions = new ArrayList<>();
+		Optional<StaffDetails> staffOpt = staffDetailsRepository.findByUser(user);
 
-		// Step 4: Generate JWT token including permissions
-		String token = jwtUtil.generateToken(user, request.getIdentifier(), permissions);
+		if (staffOpt.isPresent()) {
+			StaffDetails staff = staffOpt.get();
+			staffPermissions = staffPermissionRepository.findByStaff_Id(staff.getId())
+					.stream()
+					.map(StaffPermission::getPermission)
+					.toList();
+		}
 
-		// Step 5: Return response
+		if (staffPermissions.isEmpty()) {
+			staffPermissions = permissionRepository.findByRole_Id(user.getRole().getId());
+		}
+
+		List<String> permissionStrings = staffPermissions.stream()
+				.map(p -> p.getFormName() + ":" + p.getAction())
+				.toList();
+
+		String token = jwtUtil.generateToken(user, permissionStrings);
+
 		return AuthResponse.builder()
 				.token(token)
 				.userId(user.getId())
 				.email(user.getEmail())
 				.phone(user.getPhone())
 				.role(user.getRole().getName())
+				.permissions(permissionStrings)
 				.message("Login successful")
-				// set permissions
-				.permissions(permissions.stream().map(Permission::getFormName).collect(Collectors.toList()))
 				.build();
 	}
 }
-

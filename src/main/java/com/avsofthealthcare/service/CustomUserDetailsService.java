@@ -1,18 +1,23 @@
 package com.avsofthealthcare.service;
 
-
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.avsofthealthcare.entity.User;
+import com.avsofthealthcare.entity.dashboard.doctordashboard.StaffDetails;
 import com.avsofthealthcare.repository.UserRepository;
+import com.avsofthealthcare.repository.dashboard.doctordashboard.StaffDetailsRepository;
+import com.avsofthealthcare.repository.dashboard.doctordashboard.StaffPermissionRepository;
+import com.avsofthealthcare.security.CustomUserDetails;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,28 +25,28 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-	@Autowired
-	private UserRepository userRepository;
+	private final UserRepository userRepository;
+	private final StaffDetailsRepository staffDetailsRepository;
+	private final StaffPermissionRepository staffPermissionRepository;
 
 	@Override
+	@Transactional(readOnly = true)
 	public UserDetails loadUserByUsername(String identifier) throws UsernameNotFoundException {
-		// Try to find by email first, then by phone
 		User user = userRepository.findByEmail(identifier)
 				.or(() -> userRepository.findByPhone(identifier))
-				.orElseThrow(() -> new UsernameNotFoundException("User not found with email or phone: " + identifier));
+				.orElseThrow(() -> new UsernameNotFoundException("User not found: " + identifier));
 
-		// Convert single user role into Spring Security authority
-		Set<GrantedAuthority> authorities = Set.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().getName()));
+		StaffDetails staff = staffDetailsRepository.findByUser(user)
+				.orElseThrow(() -> new UsernameNotFoundException("Staff not found for user: " + user.getId()));
 
-		// Return Spring Security UserDetails
-		return new org.springframework.security.core.userdetails.User(
-				identifier,                    // Use login identifier (email or phone)
-				user.getPassword(),            // Password from DB
-				user.isEnabled(),              // Account enabled
-				true,                          // Account non-expired
-				true,                          // Credentials non-expired
-				true,                          // Account non-locked
-				authorities                    // Roles as authorities
-		);
+		List<String> permissions = staffPermissionRepository.findByStaffIdAndActiveTrue(staff.getId()).stream()
+				.map(sp -> sp.getPermission().getFormName() + ":" + sp.getPermission().getAction())
+				.toList();
+
+		Set<GrantedAuthority> authorities = permissions.stream()
+				.map(SimpleGrantedAuthority::new)
+				.collect(Collectors.toSet());
+
+		return new CustomUserDetails(user, permissions, authorities);
 	}
 }

@@ -1,7 +1,7 @@
-package com.avsofthealthcare.repository.dashboard.doctordashboard;
+package com.avsofthealthcare.repository.master;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.avsofthealthcare.entity.dashboard.doctordashboard.UserPermission;
+import com.avsofthealthcare.entity.master.UserPermission;
 import java.util.List;
 
 public interface UserPermissionRepository extends JpaRepository<UserPermission, Long> {

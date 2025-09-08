@@ -25,7 +25,7 @@ import com.avsofthealthcare.entity.dashboard.doctordashboard.StaffDetails;
 import com.avsofthealthcare.entity.master.Gender;
 import com.avsofthealthcare.entity.master.Specialization;
 import com.avsofthealthcare.mapper.dashboard.doctordashboard.StaffMapper;
-import com.avsofthealthcare.repository.dashboard.doctordashboard.StaffRepository;
+import com.avsofthealthcare.repository.dashboard.doctordashboard.StaffDetailsRepository;
 import com.avsofthealthcare.repository.RoleRepository;
 import com.avsofthealthcare.repository.UserRepository;
 import com.avsofthealthcare.repository.master.GenderRepository;
@@ -38,7 +38,7 @@ import com.avsofthealthcare.util.FileStorageService;
 @Transactional
 public class StaffServiceImpl implements StaffService {
 
-	private final StaffRepository staffRepository;
+	private final StaffDetailsRepository staffDetailsRepository;
 	private final SpecializationRepository specializationRepository;
 	private final GenderRepository genderRepository;
 	@Autowired
@@ -71,54 +71,51 @@ public class StaffServiceImpl implements StaffService {
 	public StaffResponseDTO create(StaffRequestDTO dto) {
 		Role role = roleRepository.findById(dto.getRoleId())
 				.orElseThrow(() -> new RuntimeException("Role not found"));
+
 		if ("PATIENT".equalsIgnoreCase(role.getName())) {
 			throw new RuntimeException("Invalid role for staff");
 		}
+
 		Specialization specialization = specializationRepository.findById(dto.getSpecializationId())
 				.orElseThrow(() -> new RuntimeException("Specialization not found"));
+
 		Gender gender = genderRepository.findById(dto.getGenderId())
 				.orElseThrow(() -> new RuntimeException("Gender not found"));
 
-		StaffDetails staff = StaffDetails.builder()
-				.fullName(dto.getFullName())
-				.role(role)
-				.emailId(dto.getEmailId())
-				.specialization(specialization)
-				.phoneNumber(dto.getPhoneNumber())
-				.password(dto.getPassword())
-				.gender(gender)
-				.signature(dto.getSignature())
-				.active(true)
-				.isDeleted(false)
-				.build();
-
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof User principal) {
-			staff.setCreatedBy(String.valueOf(principal.getId()));
-		}
-		staff.setCreatedAt(LocalDateTime.now());
-
-		staff = staffRepository.save(staff);
-
-		String photoPath = handleStaffPhotoUpload(dto.getPhoto(), staff.getFullName(), staff.getId(), 1);
-		staff.setPhoto(photoPath);
-
-		staff = staffRepository.save(staff);
-
-		Role staffRole = roleRepository.findByName("STAFF")
-				.orElseThrow(() -> new RuntimeException("Role 'STAFF' not found"));
+		// 🔹 Create linked User first
 		String encodedPassword = passwordEncoder.encode(dto.getPassword());
 		User user = User.builder()
 				.email(dto.getEmailId())
 				.phone(dto.getPhoneNumber())
 				.password(encodedPassword)
 				.confirmPassword(encodedPassword)
-				.role(staffRole)
+				.role(role)
 				.enabled(true)
 				.build();
 		user = userRepository.save(user);
-		staff.setUserId(user.getId());
-		staff = staffRepository.save(staff);
+
+		// 🔹 Create StaffDetails
+		StaffDetails staff = StaffDetails.builder()
+				.user(user)  // ✅ linked directly
+				.fullName(dto.getFullName())
+				.emailId(dto.getEmailId())
+				.specialization(specialization)
+				.phoneNumber(dto.getPhoneNumber())
+				.password(dto.getPassword()) // ⚠️ careful — this is plaintext, better remove
+				.gender(gender)
+				.signature(dto.getSignature())
+				.active(true)
+				.isDeleted(false)
+				.createdBy(user.getId().toString())
+				.createdAt(LocalDateTime.now())
+				.build();
+
+		staff = staffDetailsRepository.save(staff);
+
+		// 🔹 Upload photo
+		String photoPath = handleStaffPhotoUpload(dto.getPhoto(), staff.getFullName(), staff.getId(), 1);
+		staff.setPhoto(photoPath);
+		staff = staffDetailsRepository.save(staff);
 
 		return StaffMapper.toResponseDTO(staff);
 	}
@@ -126,7 +123,7 @@ public class StaffServiceImpl implements StaffService {
 
 	@Override
 	public StaffResponseDTO update(Long id, StaffRequestDTO dto) {
-		StaffDetails staff = staffRepository.findById(id)
+		StaffDetails staff = staffDetailsRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Staff not found"));
 
 		Role role = roleRepository.findById(dto.getRoleId())
@@ -134,7 +131,6 @@ public class StaffServiceImpl implements StaffService {
 		if ("PATIENT".equalsIgnoreCase(role.getName())) {
 			throw new RuntimeException("Invalid role for staff");
 		}
-		staff.setRole(role);
 		staff.setFullName(dto.getFullName());
 		staff.setEmailId(dto.getEmailId());
 		staff.setPhoneNumber(dto.getPhoneNumber());
@@ -162,58 +158,57 @@ public class StaffServiceImpl implements StaffService {
 		}
 		staff.setUpdatedAt(LocalDateTime.now());
 
-		staff = staffRepository.save(staff);
+		staff = staffDetailsRepository.save(staff);
 
 		Role staffRole = roleRepository.findByName("STAFF")
 				.orElseThrow(() -> new RuntimeException("Role 'STAFF' not found"));
-		User linkedUser = null;
-		if (staff.getUserId() != null) {
-			linkedUser = userRepository.findById(staff.getUserId()).orElse(null);
-		}
-		if (linkedUser == null) {
-			String encodedPassword = passwordEncoder.encode(dto.getPassword());
-			linkedUser = User.builder()
-					.email(staff.getEmailId())
-					.phone(staff.getPhoneNumber())
-					.password(encodedPassword)
-					.confirmPassword(encodedPassword)
-					.role(staffRole)
-					.enabled(true)
-					.build();
-		} else {
-			linkedUser.setEmail(staff.getEmailId());
-			linkedUser.setPhone(staff.getPhoneNumber());
+		User linkedUser = staff.getUser();
+		if (linkedUser != null) {
+			linkedUser.setEmail(dto.getEmailId());
+			linkedUser.setPhone(dto.getPhoneNumber());
 			if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
 				String encodedPassword = passwordEncoder.encode(dto.getPassword());
 				linkedUser.setPassword(encodedPassword);
 				linkedUser.setConfirmPassword(encodedPassword);
 			}
-			linkedUser.setRole(staffRole);
+			linkedUser.setRole(role);
+			userRepository.save(linkedUser);
 		}
-		linkedUser = userRepository.save(linkedUser);
-		staff.setUserId(linkedUser.getId());
-		staff = staffRepository.save(staff);
+		staff.setUser(linkedUser);
+
+		staff = staffDetailsRepository.save(staff);
 
 		return StaffMapper.toResponseDTO(staff);
 	}
 
 	@Override
 	public void delete(Long id) {
-		staffRepository.deleteById(id);
+		staffDetailsRepository.deleteById(id);
 	}
 
 	@Override
 	public StaffResponseDTO getById(Long id) {
-		return staffRepository.findById(id)
+		return staffDetailsRepository.findById(id)
 				.map(StaffMapper::toResponseDTO)
 				.orElseThrow(() -> new RuntimeException("Staff not found"));
 	}
 
 	@Override
 	public List<StaffResponseDTO> getAll() {
-		return staffRepository.findAll()
+		return staffDetailsRepository.findAll()
 				.stream()
 				.map(StaffMapper::toResponseDTO)
 				.collect(Collectors.toList());
+	}
+
+
+	@Override
+	public List<StaffDetails> getStaffByRoleId(Long roleId) {
+		return staffDetailsRepository.findByUser_Role_Id(roleId);
+	}
+
+	@Override
+	public List<StaffDetails> getStaffByRoleName(String roleName) {
+		return staffDetailsRepository.findByUser_Role_Name(roleName);
 	}
 }

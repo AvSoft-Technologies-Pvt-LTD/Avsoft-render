@@ -1,5 +1,7 @@
 package com.avsofthealthcare.entity;
 
+import com.avsofthealthcare.entity.dashboard.doctordashboard.StaffDetails;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -32,6 +34,8 @@ public class User {
 
 	private boolean enabled = true;  // default true
 
+	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
+	private StaffDetails staffDetails;
 
 
 }
