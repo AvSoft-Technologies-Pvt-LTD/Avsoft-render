@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: avsofthealthcare
+    env: docker
+    plan: free
+    repo: https://github.com/AvSoft-Technologies-Pvt-LTD/Avsoft-render.git
+    branch: main
+    dockerfilePath: Dockerfile
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_USER
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        sync: false
