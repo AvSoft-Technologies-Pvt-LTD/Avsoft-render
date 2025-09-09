@@ -1,14 +1,15 @@
 package com.avsofthealthcare.service.master;
 
-import com.avsofthealthcare.dto.master.PermissionDto;
+import com.avsofthealthcare.dto.master.PermissionRequestDto;
+import com.avsofthealthcare.dto.master.PermissionResponseDto;
 
 import java.util.List;
 
 public interface PermissionService {
-	PermissionDto create(PermissionDto dto);
-	List<PermissionDto> getAll();
-	PermissionDto update(Long id, PermissionDto dto);
+	PermissionResponseDto create(PermissionRequestDto dto);
+	List<PermissionResponseDto> getAll();
+	PermissionResponseDto update(Long id, PermissionRequestDto dto);
 	void delete(Long id);
-	List<PermissionDto> getPermissionsByRoleId(Long roleId);
-	List<PermissionDto> getPermissionsByRoleName(String roleName);
+	List<PermissionResponseDto> getPermissionsByRoleId(Long roleId);
+	List<PermissionResponseDto> getPermissionsByRoleName(String roleName);
 }

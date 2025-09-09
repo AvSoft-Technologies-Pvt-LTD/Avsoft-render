@@ -1,8 +1,10 @@
 package com.avsofthealthcare.service.impl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,48 +42,42 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public AuthResponse login(String identifier, String password) {
-		User user = userRepository.findByEmailOrPhoneWithPermissions(identifier)
+		// 🔹 Step 1: Find user by email OR phone
+		User user = userRepository.findByEmail(identifier)
+				.or(() -> userRepository.findByPhone(identifier))
 				.orElseThrow(() -> new UsernameNotFoundException("User not found: " + identifier));
 
+		// 🔹 Step 2: Verify password
 		if (!passwordEncoder.matches(password, user.getPassword())) {
-			return AuthResponse.builder().message("Invalid credentials").build();
+			return AuthResponse.builder()
+					.message("Invalid credentials")
+					.build();
 		}
 
-		Role role = user.getRole();
-
-		List<Permission> permissions = new ArrayList<>();
-		Optional<StaffDetails> staffOpt = staffDetailsRepository.findByUser(user);
-
-		if (staffOpt.isPresent()) {
-			StaffDetails staff = staffOpt.get();
-			permissions = staffPermissionRepository.findByStaff_Id(staff.getId())
-					.stream()
-					.map(StaffPermission::getPermission)
-					.toList();
-		}
-
-		if (permissions.isEmpty()) {
-			permissions = role.getRolePermissions().stream()
-					.map(RolePermission::getPermission)
-					.toList();
-		}
-
-		List<String> permissionStrings = permissions.stream()
-				.map(p -> p.getFormName() + ":" + p.getAction())
+		// 🔹 Step 3: Load permissions (only if staff-based roles)
+		List<String> permissionStrings = staffDetailsRepository.findByUser(user)
+				.map(staff -> staffPermissionRepository.findByStaffIdAndActiveTrue(staff.getId()))
+				.orElse(List.of())
+				.stream()
+				.map(sp -> sp.getPermission().getFormName() + ":" + sp.getPermission().getAction())
 				.toList();
 
+		// 🔹 Step 4: Always generate JWT with userId as subject
 		String token = jwtUtil.generateToken(user, permissionStrings);
 
+		// 🔹 Step 5: Build AuthResponse
 		return AuthResponse.builder()
 				.token(token)
-				.userId(user.getId())
+				.userId(user.getId())               // ✅ numeric userId
 				.email(user.getEmail())
 				.phone(user.getPhone())
-				.role(role.getName())
-				.permissions(permissionStrings)
+				.role(user.getRole().getName())     // ✅ keep role info
+				.permissions(permissionStrings)     // ✅ staff-specific permissions
 				.message("Login successful")
 				.build();
 	}
+
+
 
 	@Transactional
 	public String updateUser(UserUpdateRequest req) {
@@ -102,7 +98,6 @@ public class UserServiceImpl implements UserService {
 		}
 
 		userRepository.save(user);
-
 		return "User updated successfully";
 	}
 }

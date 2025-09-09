@@ -65,23 +65,11 @@ public class AuthServiceImpl implements AuthService {
 			}
 		}
 
-		List<Permission> staffPermissions = new ArrayList<>();
-		Optional<StaffDetails> staffOpt = staffDetailsRepository.findByUser(user);
-
-		if (staffOpt.isPresent()) {
-			StaffDetails staff = staffOpt.get();
-			staffPermissions = staffPermissionRepository.findByStaff_Id(staff.getId())
-					.stream()
-					.map(StaffPermission::getPermission)
-					.toList();
-		}
-
-		if (staffPermissions.isEmpty()) {
-			staffPermissions = permissionRepository.findByRole_Id(user.getRole().getId());
-		}
-
-		List<String> permissionStrings = staffPermissions.stream()
-				.map(p -> p.getFormName() + ":" + p.getAction())
+		List<String> permissionStrings = staffDetailsRepository.findByUser(user)
+				.map(staff -> staffPermissionRepository.findByStaff_Id(staff.getId()))
+				.orElse(List.of()) // no staff record
+				.stream()
+				.map(sp -> sp.getPermission().getFormName() + ":" + sp.getPermission().getAction())
 				.toList();
 
 		String token = jwtUtil.generateToken(user, permissionStrings);

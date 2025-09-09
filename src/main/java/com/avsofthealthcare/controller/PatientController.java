@@ -44,49 +44,43 @@ public class PatientController {
 
 	private final Path fileStorageLocation = Paths.get("/patients/photos").toAbsolutePath().normalize();
 
-
+	// ✅ Public registration
 	@PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	@PreAuthorize("@permissionChecker.hasPermission('patients','view')")
-    public ResponseEntity<String> register(@Valid @ModelAttribute PatientRegisterRequest request) throws IOException {
-        patientService.register(request, request.getPhoto());
-        return ResponseEntity.ok("Patient registered successfully");
-    }
+	public ResponseEntity<String> register(@Valid @ModelAttribute PatientRegisterRequest request) throws IOException {
+		patientService.register(request, request.getPhoto());
+		return ResponseEntity.ok("Patient registered successfully");
+	}
 
-    // READ (Get patient by ID)
+	// ✅ Restricted: only staff/admin/patient with permission
+	@PreAuthorize("@permissionChecker.hasPermission('patients','VIEW')")
 	@GetMapping("/{id}")
-	@PreAuthorize("@permissionChecker.hasPermission('patients','view')")
-    public ResponseEntity<PatientResponseDto> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(patientService.getById(id));
-    }
+	public ResponseEntity<PatientResponseDto> getById(@PathVariable Long id) {
+		return ResponseEntity.ok(patientService.getById(id));
+	}
 
-    // READ (Get all active patients)
-    @PreAuthorize("@permissionChecker.hasPermission('patients','view')")
+	@PreAuthorize("@permissionChecker.hasPermission('patients','VIEW')")
 	@GetMapping("/all")
-    public ResponseEntity<List<PatientResponseDto>> getAll() {
-        return ResponseEntity.ok(patientService.getAllActive());
-    }
+	public ResponseEntity<List<PatientResponseDto>> getAll() {
+		return ResponseEntity.ok(patientService.getAllActive());
+	}
 
-    //update
-
-    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("@permissionChecker.hasPermission('patients','edit')")
-    public ResponseEntity<PatientResponseDto> update(
-		    @Valid
+	@PreAuthorize("@permissionChecker.hasPermission('patients','UPDATE')")
+	@PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<PatientResponseDto> update(
 			@PathVariable Long id,
-            @ModelAttribute PatientRegisterRequest request
-    ) throws IOException {
-        return ResponseEntity.ok(patientService.update(id, request, request.getPhoto()));
-    }
+			@Valid @ModelAttribute PatientRegisterRequest request) throws IOException {
+		return ResponseEntity.ok(patientService.update(id, request, request.getPhoto()));
+	}
 
+	@PreAuthorize("@permissionChecker.hasPermission('patients','DELETE')")
+	@DeleteMapping("/{id}")
+	public ResponseEntity<String> delete(@PathVariable Long id) {
+		patientService.softDelete(id);
+		return ResponseEntity.ok("Patient deleted successfully");
+	}
 
-    // DELETE (Soft delete)
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id) {
-        patientService.softDelete(id);
-        return ResponseEntity.ok("Patient deleted successfully");
-    }
-
+	// ✅ Download photo: optional restriction if needed
+	@PreAuthorize("@permissionChecker.hasPermission('patients','VIEW')")
 	@GetMapping("/photo")
 	public ResponseEntity<Resource> downloadPhoto(@RequestParam String path) throws MalformedURLException {
 		Path basePath = Paths.get(uploadDir).toAbsolutePath().normalize();

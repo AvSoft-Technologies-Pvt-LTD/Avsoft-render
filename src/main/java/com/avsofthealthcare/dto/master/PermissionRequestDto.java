@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PermissionDto {
-	private Long id;
+public class PermissionRequestDto {
 	private String formName;
 	private String action;
 }

@@ -30,7 +30,7 @@ import lombok.Setter;
 @Builder
 @Entity
 @Table(name = "permissions")
-public class Permission {
+public class    Permission {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

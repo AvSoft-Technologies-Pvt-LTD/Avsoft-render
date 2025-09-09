@@ -21,27 +21,27 @@ public class JwtUtil {
 	private Long expiration;
 
 	private SecretKey getSigningKey() {
-		byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
-		return Keys.hmacShaKeyFor(keyBytes);
+		return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
 	}
 
-	// ✅ Extract userId (we set as subject)
-	public Long extractUserId(String token) {
-		return Long.valueOf(extractClaim(token, Claims::getSubject));
+	// ✅ Extract userId from subject
+	public String extractUserId(String token) {
+		return extractClaim(token, Claims::getSubject);
 	}
 
-	// ✅ Extract email
+	// ✅ Extract email if needed
 	public String extractEmail(String token) {
 		return extractClaim(token, claims -> claims.get("email", String.class));
+	}
+
+	// ✅ Extract phone if needed
+	public String extractPhone(String token) {
+		return extractClaim(token, claims -> claims.get("phone", String.class));
 	}
 
 	// ✅ Extract role
 	public String extractRole(String token) {
 		return extractClaim(token, claims -> claims.get("role", String.class));
-	}
-
-	public String extractIdentifier(String token) {
-		return extractClaim(token, claims -> claims.get("identifier", String.class));
 	}
 
 	// ✅ Extract permissions
@@ -64,14 +64,14 @@ public class JwtUtil {
 				.getBody();
 	}
 
-	public Boolean isTokenExpired(String token) {
+	// ✅ Check token expiry
+	public boolean isTokenExpired(String token) {
 		return extractAllClaims(token).getExpiration().before(new Date());
 	}
 
-	// ✅ Generate JWT with permissions
+	// ✅ Generate JWT (userId as subject)
 	public String generateToken(User user, List<String> permissions) {
 		Map<String, Object> claims = new HashMap<>();
-		claims.put("user_id", user.getId());
 		claims.put("role", user.getRole().getName());
 		claims.put("email", user.getEmail());
 		claims.put("phone", user.getPhone());
@@ -79,18 +79,16 @@ public class JwtUtil {
 
 		return Jwts.builder()
 				.setClaims(claims)
-				.setSubject(user.getEmail()) // email as subject
+				.setSubject(String.valueOf(user.getId())) // userId is subject
 				.setIssuedAt(new Date())
 				.setExpiration(new Date(System.currentTimeMillis() + expiration))
-				.signWith(getSigningKey())
+				.signWith(getSigningKey(), SignatureAlgorithm.HS256)
 				.compact();
 	}
 
-
-
 	// ✅ Validate token
-	public Boolean validateToken(String token, org.springframework.security.core.userdetails.UserDetails userDetails) {
-		Long userId = extractUserId(token);
-		return (userId != null && !isTokenExpired(token));
+	public boolean validateToken(String token, User user) {
+		String userId = extractUserId(token);
+		return (userId.equals(String.valueOf(user.getId())) && !isTokenExpired(token));
 	}
 }

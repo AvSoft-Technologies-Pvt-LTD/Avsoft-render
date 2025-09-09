@@ -6,6 +6,7 @@ import com.avsofthealthcare.service.dashboard.patientdashboard.AdditionalDetails
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,6 +17,7 @@ public class AdditionalDetailsController {
 	private final AdditionalDetailsService additionalDetailsService;
 
 	// CREATE
+	//@PreAuthorize("hasRole('PATIENT')")
 	@PostMapping("/{patientId}")
 	public ResponseEntity<AdditionalDetailsResponseDTO> create(
 			@PathVariable String patientId,

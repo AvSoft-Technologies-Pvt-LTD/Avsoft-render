@@ -3,13 +3,20 @@ package com.avsofthealthcare.controller.master;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.avsofthealthcare.dto.master.PermissionDto;
+import com.avsofthealthcare.dto.master.PermissionRequestDto;
+import com.avsofthealthcare.dto.master.PermissionResponseDto;
 import com.avsofthealthcare.service.master.PermissionService;
 
 
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/master/permissions")
@@ -19,17 +26,18 @@ public class PermissionController {
 	private final PermissionService permissionService;
 
 	@PostMapping
-	public ResponseEntity<PermissionDto> create(@RequestBody PermissionDto dto) {
+	public ResponseEntity<PermissionResponseDto> create(@RequestBody PermissionRequestDto dto) {
 		return ResponseEntity.ok(permissionService.create(dto));
 	}
 
 	@GetMapping
-	public ResponseEntity<List<PermissionDto>> getAll() {
+	public ResponseEntity<List<PermissionResponseDto>> getAll() {
 		return ResponseEntity.ok(permissionService.getAll());
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<PermissionDto> update(@PathVariable Long id, @RequestBody PermissionDto dto) {
+	public ResponseEntity<PermissionResponseDto> update(@PathVariable Long id,
+			@RequestBody PermissionRequestDto dto) {
 		return ResponseEntity.ok(permissionService.update(id, dto));
 	}
 
@@ -39,15 +47,13 @@ public class PermissionController {
 		return ResponseEntity.noContent().build();
 	}
 
-	// ✅ Get permissions by Role ID
-	@GetMapping("/role/{roleId}")
-	public ResponseEntity<List<PermissionDto>> getByRoleId(@PathVariable Long roleId) {
-		return ResponseEntity.ok(permissionService.getPermissionsByRoleId(roleId));
-	}
-
-	// ✅ Get permissions by Role Name
-	@GetMapping("/role/name/{roleName}")
-	public ResponseEntity<List<PermissionDto>> getByRoleName(@PathVariable String roleName) {
-		return ResponseEntity.ok(permissionService.getPermissionsByRoleName(roleName));
-	}
+//	@GetMapping("/role/{roleId}")
+//	public ResponseEntity<List<PermissionResponseDto>> getByRoleId(@PathVariable Long roleId) {
+//		return ResponseEntity.ok(permissionService.getPermissionsByRoleId(roleId));
+//	}
+//
+//	@GetMapping("/role/name/{roleName}")
+//	public ResponseEntity<List<PermissionResponseDto>> getByRoleName(@PathVariable String roleName) {
+//		return ResponseEntity.ok(permissionService.getPermissionsByRoleName(roleName));
+//	}
 }

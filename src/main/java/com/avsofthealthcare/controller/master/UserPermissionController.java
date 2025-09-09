@@ -21,18 +21,18 @@ import lombok.RequiredArgsConstructor;
 public class UserPermissionController {
 	private final UserPermissionService service;
 
-	@PostMapping
-	public UserPermissionDto assign(@RequestBody UserPermissionDto dto) {
-		return service.assign(dto);
-	}
-
-	@GetMapping("/staff/{staffId}")
-	public List<UserPermissionDto> getByStaff(@PathVariable Long staffId) {
-		return service.getByStaff(staffId);
-	}
-
-	@DeleteMapping("/{id}")
-	public void revoke(@PathVariable Long id) {
-		service.revoke(id);
-	}
+//	@PostMapping
+//	public UserPermissionDto assign(@RequestBody UserPermissionDto dto) {
+//		return service.assign(dto);
+//	}
+//
+//	@GetMapping("/staff/{staffId}")
+//	public List<UserPermissionDto> getByStaff(@PathVariable Long staffId) {
+//		return service.getByStaff(staffId);
+//	}
+//
+//	@DeleteMapping("/{id}")
+//	public void revoke(@PathVariable Long id) {
+//		service.revoke(id);
+//	}
 }

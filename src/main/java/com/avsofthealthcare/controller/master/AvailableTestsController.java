@@ -9,6 +9,7 @@ import com.avsofthealthcare.service.master.AvailableTestsService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,28 +28,32 @@ public class AvailableTestsController {
     private AvailableTestsRepository availableTestsRepository;
 
 
-    @PostMapping
+	@PreAuthorize("@permissionChecker.hasPermission('Available-Tests','CREATE')")
+	@PostMapping
     public ResponseEntity<AvailableTestResponseDto> createAvailableTest( @Validated @RequestBody AvailableTestRequestDto dto) {
         AvailableTests saved = availableTestsRepository.save(AvailableTestMapper.toEntity(dto));
         return ResponseEntity.ok(AvailableTestMapper.toDto(saved));
     }
 
 
-    @GetMapping
+	@PreAuthorize("@permissionChecker.hasPermission('Available-Tests','VIEW')")
+	@GetMapping
     public List<AvailableTestResponseDto> getAllAvailableTest() {
         return availableTestsService.findAllByIsDeletedFalse().stream()
                 .map(AvailableTestMapper::toDto)
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/{id}")
+	@PreAuthorize("@permissionChecker.hasPermission('Available-Tests','VIEW')")
+	@GetMapping("/{id}")
     public ResponseEntity<AvailableTestResponseDto> getById(@PathVariable Integer id) {
         AvailableTests test = availableTestsService.findByIdAndIsDeletedFalse(id);
         return ResponseEntity.ok(AvailableTestMapper.toDto(test));
     }
 
 
-    @PutMapping("/{id}")
+	@PreAuthorize("@permissionChecker.hasPermission('Available-Tests','UPDATE')")
+	@PutMapping("/{id}")
     public ResponseEntity<AvailableTestResponseDto> update(
             @PathVariable Integer id,
 		    @Validated @RequestBody AvailableTestRequestDto dto) {
@@ -58,7 +63,8 @@ public class AvailableTestsController {
     }
 
 
-    @DeleteMapping("/{id}")
+	@PreAuthorize("@permissionChecker.hasPermission('Available-Tests','DELETE')")
+	@DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         availableTestsService.delete(id);
         return ResponseEntity.noContent().build();

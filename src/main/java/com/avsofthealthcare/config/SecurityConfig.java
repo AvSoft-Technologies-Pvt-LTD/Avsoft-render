@@ -21,7 +21,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 import java.util.List;
 
 @Configuration
-@EnableMethodSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -71,9 +71,29 @@ public class SecurityConfig {
 //						.anyRequest().authenticated()
 //				)
 
+//				.authorizeHttpRequests(auth -> auth
+//						.requestMatchers("/api/auth/**", "/api/master/**", "/api/staff-permissions/**", "/api/dashboard/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
+//						.anyRequest().hasRole("ADMIN")
+//				)
+
 				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/api/auth/**", "/api/master/**", "/api/staff-permissions/**", "/api/dashboard/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
-						.anyRequest().hasRole("ADMIN")
+						// ✅ Public APIs: patient & doctor registration, login, Swagger
+						.requestMatchers(
+								"/api/auth/patient/register",
+								"/api/auth/doctor/register",
+								"/api/auth/**",
+								"/v3/api-docs/**",
+								"/swagger-ui/**",
+								"/swagger-ui.html",
+								"/swagger-resources/**",
+								"/webjars/**"
+						).permitAll()
+
+						// ✅ H2 console
+						.requestMatchers("/h2-console/**").permitAll()
+
+						// ✅ Any other API requires authentication
+						.anyRequest().authenticated()
 				)
 
 

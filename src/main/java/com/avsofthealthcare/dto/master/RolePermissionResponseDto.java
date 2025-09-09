@@ -9,9 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RolePermissionDto {
+public class RolePermissionResponseDto {
 	private Long id;
 	private Long roleId;
 	private Long permissionId;
 }
-
