@@ -1,9 +1,13 @@
-HELP.md
-target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+# Ignore build output
+/target/
 
+# Do not ignore Maven wrapper files
+!.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.properties
+!mvnw
+!mvnw.cmd
+
+# STS IDE files
 ### STS ###
 .apt_generated
 .classpath
@@ -13,12 +17,14 @@ target/
 .springBeans
 .sts4-cache
 
+# IntelliJ IDEA files
 ### IntelliJ IDEA ###
 .idea
 *.iws
 *.iml
 *.ipr
 
+# NetBeans files
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
@@ -29,5 +35,6 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+# VS Code files
 ### VS Code ###
 .vscode/
