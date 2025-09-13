@@ -13,9 +13,10 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("*")
+                .allowedOrigins("http://localhost:5173") // Only allow frontend origin
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*");
+                .allowedHeaders("*")
+                .allowCredentials(true); // Allow credentials if needed
     }
 
     @Override
@@ -23,4 +24,4 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/");
     }
-} 
+}
