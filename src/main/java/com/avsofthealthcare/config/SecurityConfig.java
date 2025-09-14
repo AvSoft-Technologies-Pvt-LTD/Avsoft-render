@@ -113,7 +113,7 @@ public class SecurityConfig {
 	@Bean
 	public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
 		var config = new org.springframework.web.cors.CorsConfiguration();
-		config.setAllowedOrigins(List.of("http://localhost:8080")); // adjust for frontend
+		config.setAllowedOrigins(List.of("http://localhost:8080","https://digihealth-374j.onrender.com")); // adjust for frontend
 		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		config.setAllowedHeaders(List.of("*"));
 		config.setAllowCredentials(true);
