@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class PersonalHealthDetailsController {
 
     @Autowired
-    private PersonalHealthDetailsService personalHealthDetailsService;
+    public PersonalHealthDetailsService personalHealthDetailsService;
 
     @PostMapping
     public ResponseEntity<PersonalHealthDetailsResponseDto> create( @Valid @RequestBody PersonalHealthDetailsRequestDto dto) {
