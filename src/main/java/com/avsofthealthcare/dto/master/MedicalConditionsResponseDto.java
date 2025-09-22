@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class MedicalConditionsResponseDto {
-    private Integer id;
+    private Long id;
     private String conditionName;
     private String description;
     private Boolean active;

@@ -7,32 +7,28 @@ import com.avsofthealthcare.entity.HospitalList;
 public class HospitalListMapper {
 
     public static HospitalRequestListDTO mapToHospitalRequestListDTO(HospitalList hospitalList){
-        HospitalRequestListDTO hospitalRequestListDTO = new HospitalRequestListDTO();
-        hospitalRequestListDTO.setId(hospitalList.getId());
-        hospitalRequestListDTO.setHospitalName(hospitalList.getHospitalName());
-        hospitalRequestListDTO.setAddress(hospitalList.getAddress());
-        hospitalRequestListDTO.setCity(hospitalList.getCity());
-        hospitalRequestListDTO.setState(hospitalList.getState());
-        hospitalRequestListDTO.setPinCode(hospitalList.getPinCode());
-        hospitalRequestListDTO.setPpnNonPpn(hospitalList.getPpnNonPpn());
-        return hospitalRequestListDTO;
+        HospitalRequestListDTO dto = new HospitalRequestListDTO();
+        dto.setHospitalName(hospitalList.getHospitalName());
+        dto.setAddress(hospitalList.getAddress());
+        dto.setCity(hospitalList.getCity());
+        dto.setState(hospitalList.getState());
+        dto.setPinCode(hospitalList.getPinCode());
+        dto.setPpnNonPpn(hospitalList.getPpnNonPpn());
+        return dto;
     }
 
-    public static HospitalList mapToHospitalList(HospitalRequestListDTO hospitalRequestListDTO){
+    public static HospitalList mapToHospitalList(HospitalRequestListDTO dto){
         HospitalList hospitalList = new HospitalList();
-        hospitalList.setId(hospitalRequestListDTO.getId());
-        hospitalList.setHospitalName(hospitalRequestListDTO.getHospitalName());
-        hospitalList.setAddress(hospitalRequestListDTO.getAddress());
-        hospitalList.setCity(hospitalRequestListDTO.getCity());
-        hospitalList.setState(hospitalRequestListDTO.getState());
-        hospitalList.setPinCode(hospitalRequestListDTO.getPinCode());
-        hospitalList.setPpnNonPpn(hospitalRequestListDTO.getPpnNonPpn());
+        hospitalList.setHospitalName(dto.getHospitalName());
+        hospitalList.setAddress(dto.getAddress());
+        hospitalList.setCity(dto.getCity());
+        hospitalList.setState(dto.getState());
+        hospitalList.setPinCode(dto.getPinCode());
+        hospitalList.setPpnNonPpn(dto.getPpnNonPpn());
         return hospitalList;
     }
 
     public static HospitalListDropdownDto toDropdownDto(HospitalList entity) {
         return new HospitalListDropdownDto(entity.getId(), entity.getHospitalName());
     }
-
-
 }

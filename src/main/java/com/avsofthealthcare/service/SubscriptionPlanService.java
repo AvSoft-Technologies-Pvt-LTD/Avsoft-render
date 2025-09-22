@@ -1,32 +1,28 @@
+
 package com.avsofthealthcare.service;
 
-import com.avsofthealthcare.entity.SubscriptionPlan;
-import com.avsofthealthcare.repository.SubscriptionPlanRepository;
+import com.avsofthealthcare.dto.SubscriptionPlanResponseDTO;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
 public class SubscriptionPlanService {
 
-    private final SubscriptionPlanRepository repository;
+    public List<SubscriptionPlanResponseDTO> getAllPlans() {
+        return Arrays.asList(
+                new SubscriptionPlanResponseDTO(1L, "Basic", "Basic plan with limited features", 299,
+                        Arrays.asList("Basic health card", "QR code access", "Emergency contacts", "Basic medical history")),
 
-    public SubscriptionPlanService(SubscriptionPlanRepository repository) {
-        this.repository = repository;
-        initializePlans();
-    }
+                new SubscriptionPlanResponseDTO(2L, "Silver", "Silver plan with additional features", 599,
+                        Arrays.asList("Enhanced health card design", "Priority medical support", "Detailed health analytics", "Family member cards")),
 
-    // Initialize default plans if none exist
-    private void initializePlans() {
-        if (repository.count() == 0) {
-            repository.save(new SubscriptionPlan("Basic", "Basic plan with limited features", 9.99));
-            repository.save(new SubscriptionPlan("Silver", "Silver plan with additional features", 19.99));
-            repository.save(new SubscriptionPlan("Gold", "Gold plan with premium features", 29.99));
-            repository.save(new SubscriptionPlan("Platinum", "Platinum plan with all features", 49.99));
-        }
-    }
+                new SubscriptionPlanResponseDTO(3L, "Gold", "Gold plan with premium features", 999,
+                        Arrays.asList("Premium gold card design", "24/7 health concierge", "Advanced health monitoring", "Specialist consultations")),
 
-    public List<SubscriptionPlan> getAllPlans() {
-        return repository.findAll();
+                new SubscriptionPlanResponseDTO(4L, "Platinum", "Platinum plan with all features", 1499,
+                        Arrays.asList("Exclusive platinum card", "Personal health manager", "AI-powered health insights", "Global medical coverage"))
+        );
     }
 }

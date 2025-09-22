@@ -32,12 +32,22 @@ public class MedicalConditionsServiceImpl implements MedicalConditionsService {
 
     @Override
     public MedicalConditions findById(Integer id) {
+        return null;
+    }
+
+    @Override
+    public MedicalConditions findByIdAndIsDeletedFalse(Integer id) {
+        return null;
+    }
+
+    @Override
+    public MedicalConditions findById(Long id) {
         return medicalConditionsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Medical Conditions not found with id: " + id));
     }
 
     @Override
-    public MedicalConditions findByIdAndIsDeletedFalse(Integer id) {
+    public MedicalConditions findByIdAndIsDeletedFalse(Long id) {
         return medicalConditionsRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Medical Conditions not found with id: " + id));
     }

@@ -10,6 +10,11 @@ public interface MedicalConditionsService {
     List<MedicalConditions> findAllByIsDeletedFalse();
     MedicalConditions findById(Integer id);
     MedicalConditions findByIdAndIsDeletedFalse(Integer id);
+
+    MedicalConditions findById(Long id);
+
+    MedicalConditions findByIdAndIsDeletedFalse(Long id);
+
     MedicalConditions update(Integer id, MedicalConditionsRequestDto dto);
     void delete(Integer id);
 }

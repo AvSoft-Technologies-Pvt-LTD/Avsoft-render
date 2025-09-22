@@ -1,25 +1,23 @@
+
 package com.avsofthealthcare.controller;
 
-import com.avsofthealthcare.entity.SubscriptionPlan;
+import com.avsofthealthcare.dto.SubscriptionPlanResponseDTO;
 import com.avsofthealthcare.service.SubscriptionPlanService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+        import java.util.List;
 
 @RestController
-@RequestMapping("/api/subscription-plans")
+@RequestMapping("/api/plans")
+@RequiredArgsConstructor
 public class SubscriptionPlanController {
 
-    private final SubscriptionPlanService service;
-
-    public SubscriptionPlanController(SubscriptionPlanService service) {
-        this.service = service;
-    }
+    private final SubscriptionPlanService planService;
 
     @GetMapping
-    public List<SubscriptionPlan> getAllPlans() {
-        return service.getAllPlans();
+    public ResponseEntity<List<SubscriptionPlanResponseDTO>> getPlans() {
+        return ResponseEntity.ok(planService.getAllPlans());
     }
 }

@@ -6,8 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface MedicalConditionsRepository extends JpaRepository<MedicalConditions, Integer> {
+public interface MedicalConditionsRepository extends JpaRepository<MedicalConditions, Long> {
     List<MedicalConditions> findAllByIsDeletedFalse();
-    Optional<MedicalConditions> findByIdAndIsDeletedFalse(Integer id);
+    Optional<MedicalConditions> findByIdAndIsDeletedFalse(Long id);
 }
 
